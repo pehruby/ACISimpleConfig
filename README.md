@@ -18,6 +18,16 @@ The aciapidesc.yml contains API URL templates used to deploy the configuration. 
 
 Script tree2flatconv.py transforms a "tree" based config into a "item" based.
 
+## Clone the repository
+
+```text
+git clone https://github.com/pehruby/ACISimpleConfig.git
+cd ACISimpleConfig
+
+chmod 755 aciconf.py
+chmod 755 tree2flatconv.py
+```
+
 ## Python environment
 
 Create virtual environment and activate it (optional)
@@ -48,6 +58,7 @@ The script accepts both "tree" and "item" based configuration yaml files
 ### Ansible
 
 Deploy configuration specified in the roles/tn_pehruby_test/vars/main.yml into Cisco ACI Sandbox using an Ansible playbook
+Ansible must be intalled on your workstation.
 
 ```text
 ansible-playbook aci-deploy.yml
