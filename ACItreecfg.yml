@@ -1,0 +1,139 @@
+aci_trees:
+  - fvTenant:
+      attributes:
+        name: "TN_PEHRUBY_TEST"
+        descr: "PH Test tenant"
+      children:
+        - fvCtx:
+            attributes:
+              name: VRF_PH01
+        - fvCtx:
+            attributes:
+              name: VRF_PH02
+        - fvBD:
+            attributes:
+              name: BD_PH01
+            children:
+              - fvRsCtx:
+                  attributes:
+                    tnFvCtxName: VRF_PH01
+              - fvSubnet:
+                  attributes:
+                    ip: 192.168.1.1/24
+                    descr: "Subnet for BD_PH01"
+        - fvBD:
+            attributes:
+              name: BD_PH02
+            children:
+              - fvRsCtx:
+                  attributes:
+                    tnFvCtxName: VRF_PH01
+              - fvSubnet:
+                  attributes:
+                    ip: 192.168.2.1/24
+                    descr: "Subnet for BD_PH02"
+        - fvBD:
+            attributes:
+              name: BD_PH03
+            children:
+              - fvRsCtx:
+                  attributes:
+                    tnFvCtxName: VRF_PH01
+              - fvSubnet:
+                  attributes:
+                    ip: 192.168.3.1/24
+                    descr: "Subnet for BD_PH03"
+        - vzFilter:
+            attributes:
+              name: FIL_PHTEST
+            children:
+              - vzEntry:
+                  attributes:
+                    name: FE_PH-HTTP
+                    etherT: ip      # ipv4 in new versions of ACI
+                    prot: tcp
+                    dFromPort: http
+                    dToPort: http
+        - vzFilter:
+            attributes:
+              name: FIL_PHTEST2
+            children:
+              - vzEntry:
+                  attributes:
+                    name: FE_PH-HTTP
+                    etherT: ip  # ipv4 in new versions of ACI
+                    prot: tcp
+                    dFromPort: http
+                    dToPort: http
+        - vzBrCP:
+            attributes:
+              name: CON_PH01
+            children:
+              - vzSubj:
+                  attributes:
+                    name: CS_PHTEST
+                  children:
+                    - vzRsSubjFiltAtt:
+                        attributes:
+                          tnVzFilterName: FIL_PHTEST
+        - vzBrCP:
+            attributes:
+              name: CON_PH02
+            children:
+              - vzSubj:
+                  attributes:
+                    name: CS_PHTEST2
+                  children:
+                    - vzRsSubjFiltAtt:
+                        attributes:
+                          tnVzFilterName: FIL_PHTEST
+        - vzBrCP:
+            attributes:
+              name: CON_TEN_PH02
+              scope: tenant         # tenant scoped  
+        - fvAp:
+            attributes:
+              name: AP_PHTEST
+            children:
+              - fvAEPg:
+                  attributes:
+                    name: EPG_AP-PH
+                  children:
+ #                   - fvRsNodeAtt:
+ #                       attributes:
+ #                         tDn: topology/pod-1/node-101
+ #                         encap: vlan-23
+ #                   - fvRsNodeAtt:
+ #                       attributes:
+ #                         tDn: topology/pod-1/node-102
+ #                         encap: vlan-23
+                    - fvRsCons:
+                        attributes:
+                          tnVzBrCPName: CON_PH01
+                    - fvRsBd:
+                        attributes:
+                          tnFvBDName: BD_PH01                         
+              - fvAEPg:
+                  attributes:
+                    name: EPG_AP-PH2
+                  children:
+                    - fvRsProv:
+                        attributes:
+                          tnVzBrCPName: CON_PH01
+                    - fvRsCons:
+                        attributes:
+                          tnVzBrCPName: CON_PH02
+                    - fvRsBd:
+                        attributes:
+                          tnFvBDName: BD_PH02
+              - fvAEPg:
+                  attributes:
+                    name: EPG_AP-PH3
+                  children:
+                    - fvRsProv:
+                        attributes:
+                          tnVzBrCPName: CON_PH02
+                    - fvRsBd:
+                        attributes:
+                          tnFvBDName: BD_PH03
+

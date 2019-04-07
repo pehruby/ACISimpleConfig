@@ -1,0 +1,242 @@
+
+- name: Set facts for a tenant
+  set_fact:
+    resourcetype: fvTenant
+- name: Create a new tenant
+  aci_rest:
+    host: '{{ansible_host}}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    validate_certs: no
+    method: post
+    path: /api/mo/uni.json
+    content: "{{ lookup('template', 'resource-general.j2')}}"
+  register: results
+  with_items:
+    - "{{aci_items[resourcetype]}}"
+  when: aci_items[resourcetype] is defined
+
+
+- name: Set facts for a VRF
+  set_fact:
+    resourcetype: fvCtx
+- name: Create VRFs
+  aci_rest:
+    host: '{{ansible_host}}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    validate_certs: no
+    method: post
+    path: /api/mo/uni/tn-{{item.fvTenant}}.json
+    content: "{{ lookup('template', 'resource-general.j2')}}"
+  register: results
+  with_items:
+    - "{{aci_items[resourcetype]}}"
+  when: aci_items[resourcetype] is defined
+
+
+- name: Set facts for a BD
+  set_fact:
+    resourcetype: fvBD
+- name: Create BDs
+  aci_rest:
+    host: '{{ansible_host}}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    validate_certs: no
+    method: post
+    path: /api/mo/uni/tn-{{item.fvTenant}}.json
+    content: "{{ lookup('template', 'resource-general.j2')}}"
+  register: results
+  with_items:
+    - "{{aci_items[resourcetype]}}"
+  when: aci_items[resourcetype] is defined
+
+
+- name: Set facts for VRF to BD binding
+  set_fact:
+    resourcetype: fvRsCtx
+- name: Bind VRFs to BDs
+  aci_rest:
+    host: '{{ansible_host}}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    validate_certs: no
+    method: post
+    path: "/api/mo/uni/tn-{{item.fvTenant}}/BD-{{item.fvBD}}.json"
+    content: "{{ lookup('template', 'resource-general.j2')}}"
+  register: results
+  with_items:
+    - "{{aci_items[resourcetype]}}"
+  when: aci_items[resourcetype] is defined
+
+- name: Set facts for AP
+  set_fact:
+    resourcetype: fvAp
+- name: Create APs
+  aci_rest:
+    host: '{{ansible_host}}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    validate_certs: no
+    method: post
+    path: "/api/mo/uni/tn-{{item.fvTenant}}.json"
+    content: "{{ lookup('template', 'resource-general.j2')}}"
+  register: results
+  with_items:
+    - "{{aci_items[resourcetype]}}"
+  when: aci_items[resourcetype] is defined
+
+- name: Set facts for APP EPG
+  set_fact:
+    resourcetype: fvAEPg
+- name: Create App EPGs
+  aci_rest:
+    host: '{{ansible_host}}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    validate_certs: no
+    method: post
+    path: "api/node/mo/uni/tn-{{item.fvTenant}}/ap-{{item.fvAp}}.json"
+    content: "{{ lookup('template', 'resource-general.j2')}}"
+  register: results
+  with_items:
+    - "{{aci_items[resourcetype]}}"
+  when: aci_items[resourcetype] is defined
+
+- name: Set facts for static leafs
+  set_fact:
+    resourcetype: fvRsNodeAtt
+- name: Attach static leafs to App EPGs
+  aci_rest:
+    host: '{{ansible_host}}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    validate_certs: no
+    method: post
+    path: "api/node/mo/uni/tn-{{item.fvTenant}}/ap-{{item.fvAp}}/epg-{{item.fvAEPg}}.json"
+    content: "{{ lookup('template', 'resource-general.j2')}}"
+  register: results
+  with_items:
+    - "{{aci_items[resourcetype]}}"
+  when: aci_items[resourcetype] is defined
+
+- name: Set facts for contract (vrf scope)
+  set_fact:
+    resourcetype: vzBrCP
+- name: Create contract
+  aci_rest:
+    host: '{{ansible_host}}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    validate_certs: no
+    method: post
+    path: "api/node/mo/uni/tn-{{item.fvTenant}}.json"
+    content: "{{ lookup('template', 'resource-general.j2')}}"
+  register: results
+  with_items:
+    - "{{aci_items[resourcetype]}}"
+  when: aci_items[resourcetype] is defined
+
+- name: Set facts for contract subject
+  set_fact:
+    resourcetype: vzSubj
+- name: Create contract subject
+  aci_rest:
+    host: '{{ansible_host}}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    validate_certs: no
+    method: post
+    path: "api/node/mo/uni/tn-{{item.fvTenant}}/brc-{{item.vzBrCP}}.json"
+    content: "{{ lookup('template', 'resource-general.j2')}}"
+  register: results
+  with_items:
+    - "{{aci_items[resourcetype]}}"
+  when: aci_items[resourcetype] is defined
+
+- name: Set facts for filter
+  set_fact:
+    resourcetype: vzFilter
+- name: Create filter
+  aci_rest:
+    host: '{{ansible_host}}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    validate_certs: no
+    method: post
+    path: "api/node/mo/uni/tn-{{item.fvTenant}}.json"
+    content: "{{ lookup('template', 'resource-general.j2')}}"
+  register: results
+  with_items:
+    - "{{aci_items[resourcetype]}}"
+  when: aci_items[resourcetype] is defined
+
+- name: Set facts for filter entry
+  set_fact:
+    resourcetype: vzEntry
+- name: Create filter entry
+  aci_rest:
+    host: '{{ansible_host}}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    validate_certs: no
+    method: post
+    path: "api/node/mo/uni/tn-{{item.fvTenant}}/flt-{{item.vzFilter}}.json"
+    content: "{{ lookup('template', 'resource-general.j2')}}"
+  register: results
+  with_items:
+    - "{{aci_items[resourcetype]}}"
+  when: aci_items[resourcetype] is defined
+
+- name: Set facts for filter to contract binding
+  set_fact:
+    resourcetype: vzRsSubjFiltAtt
+- name: Create filter to contract binding
+  aci_rest:
+    host: '{{ansible_host}}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    validate_certs: no
+    method: post
+    path: "api/node/mo/uni/tn-{{item.fvTenant}}/brc-{{item.vzBrCP}}/subj-{{item.vzSubj}}.json"
+    content: "{{ lookup('template', 'resource-general.j2')}}"
+  register: results
+  with_items:
+    - "{{aci_items[resourcetype]}}"
+  when: aci_items[resourcetype] is defined
+
+
+- name: Set facts for contract consumed by EPG
+  set_fact:
+    resourcetype: fvRsCons
+- name: Create contract consumed by EPG
+  aci_rest:
+    host: '{{ansible_host}}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    validate_certs: no
+    method: post
+    path: "api/node/mo/uni/tn-{{item.fvTenant}}/ap-{{item.fvAp}}/epg-{{item.fvAEPg}}.json"
+    content: "{{ lookup('template', 'resource-general.j2')}}"
+  register: results
+  with_items:
+    - "{{aci_items[resourcetype]}}"
+  when: aci_items[resourcetype] is defined
+
+- name: Set facts for contract provided by EPG
+  set_fact:
+    resourcetype: fvRsProv
+- name: Create contract provided by EPG
+  aci_rest:
+    host: '{{ansible_host}}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    validate_certs: no
+    method: post
+    path: "api/node/mo/uni/tn-{{item.fvTenant}}/ap-{{item.fvAp}}/epg-{{item.fvAEPg}}.json"
+    content: "{{ lookup('template', 'resource-general.j2')}}"
+  register: results
+  with_items:
+    - "{{aci_items[resourcetype]}}"
+  when: aci_items[resourcetype] is defined

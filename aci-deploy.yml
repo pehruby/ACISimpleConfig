@@ -1,0 +1,9 @@
+- name: Test
+  gather_facts: no
+  connection: local
+  hosts: sandboxapicdc.cisco.com
+  vars_files:
+    - vault.yml
+
+  roles:
+    - tn_pehruby_test

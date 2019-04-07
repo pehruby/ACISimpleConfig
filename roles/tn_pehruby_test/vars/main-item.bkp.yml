@@ -1,0 +1,89 @@
+aci_items:
+  # defines tenant(s)
+  fvTenant:
+    - attributes:
+        name: TN_PEHRUBY_TEST
+        descr: "PH Tes tenant"
+
+  # defines VRF(s)
+  fvCtx:
+    - fvTenant: TN_PEHRUBY_TEST
+      attributes:
+        name: VRF_PH01
+    - fvTenant: TN_PEHRUBY_TEST
+      attributes:
+        name: VRF_PH02
+
+  # defines BD(s)
+  fvBD:
+    - fvTenant: TN_PEHRUBY_TEST
+      attributes:
+        name: BD_PH01
+
+  # binds VRFs to BDs
+  fvRsCtx:
+    - fvTenant: TN_PEHRUBY_TEST
+      fvBD: BD_PH01
+      attributes:
+        tnFvCtxName: VRF_PH01
+
+  # defines AP
+  fvAp:
+    - fvTenant: TN_PEHRUBY_TEST
+      attributes:
+        name: AP_PHTEST
+
+  # defines App EPG
+  fvAEPg:
+    - fvTenant: TN_PEHRUBY_TEST
+      fvAp: AP_PHTEST
+      attributes:
+        name: EPG_AP-PH
+    - fvTenant: TN_PEHRUBY_TEST
+      fvAp: AP_PHTEST
+      attributes:
+        name: EPG_AP-PH2
+
+  # defines contract 
+  vzBrCP: 
+    - fvTenant: TN_PEHRUBY_TEST   # vrf scoped (default)
+      attributes:
+        name: CON_PH01
+    - fvTenant: TN_PEHRUBY_TEST 
+      attributes:
+        name: CON_TEN_PH02
+        scope: tenant         # tenant scoped
+
+  # defines contract subject 
+  vzSubj:
+    - fvTenant: TN_PEHRUBY_TEST
+      vzBrCP: CON_PH01
+      attributes:
+        name: CS_PHTEST
+  
+  # define filter
+  vzFilter:
+    - fvTenant: TN_PEHRUBY_TEST
+      attributes:
+        name: FIL_PHTEST
+  
+  # define filter entry
+  vzEntry:
+    - fvTenant: TN_PEHRUBY_TEST
+      vzFilter: FIL_PHTEST
+      attributes:
+        name: FE_PH-HTTP
+        etherT: ip
+        prot: tcp
+        dFromPort: http
+        dToPort: http
+
+
+
+
+
+
+
+
+
+

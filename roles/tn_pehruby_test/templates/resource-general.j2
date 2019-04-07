@@ -1,0 +1,9 @@
+{
+    "{{resourcetype}}": {
+        "attributes": {
+{% for (key,value) in item.attributes.items() %}             
+            "{{key}}": "{{value}}" {% if not loop.last %},{% endif %}
+{% endfor %}
+        }
+    }
+}

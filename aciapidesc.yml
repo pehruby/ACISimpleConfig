@@ -1,0 +1,35 @@
+# url is made of "/api/mo|class" + "dn|classname"
+aciapidesc:
+  - fvTenant:   # tenant
+      urltempl: "/api/mo/uni.json"
+  - fvCtx:      # vrf
+      urltempl: "/api/mo/uni/tn-{{urlparams.fvTenant}}.json"
+  - fvBD:       # bridge domain
+      urltempl: "/api/mo/uni/tn-{{urlparams.fvTenant}}.json"
+  - fvAp:       # application profile
+      urltempl: "/api/mo/uni/tn-{{urlparams.fvTenant}}.json"
+  - vzBrCP:     # contract
+      urltempl: "/api/mo/uni/tn-{{urlparams.fvTenant}}.json"
+  - vzFilter:   # filter
+      urltempl: "/api/mo/uni/tn-{{urlparams.fvTenant}}.json"
+  - fvRsCtx:    # vrf to BD binding
+      urltempl: "/api/mo/uni/tn-{{urlparams.fvTenant}}/BD-{{urlparams.fvBD}}.json"
+  - fvSubnet:    # BD subnet
+      urltempl: "/api/mo/uni/tn-{{urlparams.fvTenant}}/BD-{{urlparams.fvBD}}.json"
+  - fvAEPg:     # application EPG
+      urltempl: "/api/mo/uni/tn-{{urlparams.fvTenant}}/ap-{{urlparams.fvAp}}.json"
+  - fvRsNodeAtt:  # attach static leafs to app EPG
+      urltempl: "/api/mo/uni/tn-{{urlparams.fvTenant}}/ap-{{urlparams.fvAp}}/epg-{{urlparams.fvAEPg}}.json"
+  - fvRsCons:   # contract consumed by EPG
+      urltempl: "/api/mo/uni/tn-{{urlparams.fvTenant}}/ap-{{urlparams.fvAp}}/epg-{{urlparams.fvAEPg}}.json"
+  - fvRsProv:   # contract provided by EPG
+      urltempl: "/api/mo/uni/tn-{{urlparams.fvTenant}}/ap-{{urlparams.fvAp}}/epg-{{urlparams.fvAEPg}}.json"
+  - fvRsBd:   # EPG to BD binding
+      urltempl: "/api/mo/uni/tn-{{urlparams.fvTenant}}/ap-{{urlparams.fvAp}}/epg-{{urlparams.fvAEPg}}.json"
+  - vzSubj:     # contract subject
+      urltempl: "/api/mo/uni/tn-{{urlparams.fvTenant}}/brc-{{urlparams.vzBrCP}}.json"
+  - vzRsSubjFiltAtt:   # filter to contract binding
+      urltempl: "/api/mo/uni/tn-{{urlparams.fvTenant}}/brc-{{urlparams.vzBrCP}}/subj-{{urlparams.vzSubj}}.json"
+  - vzEntry:    # filter entry
+      urltempl: "/api/mo/uni/tn-{{urlparams.fvTenant}}/flt-{{urlparams.vzFilter}}.json"
+

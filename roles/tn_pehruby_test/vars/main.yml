@@ -1,0 +1,161 @@
+aci_items:
+  fvTenant:
+  - attributes:
+      name: TN_PEHRUBY_TEST
+      descr: PH Test tenant
+  fvCtx:
+  - attributes:
+      name: VRF_PH01
+    fvTenant: TN_PEHRUBY_TEST
+  - attributes:
+      name: VRF_PH02
+    fvTenant: TN_PEHRUBY_TEST
+  fvBD:
+  - attributes:
+      name: BD_PH01
+    fvTenant: TN_PEHRUBY_TEST
+  - attributes:
+      name: BD_PH02
+    fvTenant: TN_PEHRUBY_TEST
+  - attributes:
+      name: BD_PH03
+    fvTenant: TN_PEHRUBY_TEST
+  fvRsCtx:
+  - attributes:
+      tnFvCtxName: VRF_PH01
+    fvTenant: TN_PEHRUBY_TEST
+    fvBD: BD_PH01
+  - attributes:
+      tnFvCtxName: VRF_PH01
+    fvTenant: TN_PEHRUBY_TEST
+    fvBD: BD_PH02
+  - attributes:
+      tnFvCtxName: VRF_PH01
+    fvTenant: TN_PEHRUBY_TEST
+    fvBD: BD_PH03
+  fvSubnet:
+  - attributes:
+      ip: 192.168.1.1/24
+      descr: Subnet for BD_PH01
+    fvTenant: TN_PEHRUBY_TEST
+    fvBD: BD_PH01
+  - attributes:
+      ip: 192.168.2.1/24
+      descr: Subnet for BD_PH02
+    fvTenant: TN_PEHRUBY_TEST
+    fvBD: BD_PH02
+  - attributes:
+      ip: 192.168.3.1/24
+      descr: Subnet for BD_PH03
+    fvTenant: TN_PEHRUBY_TEST
+    fvBD: BD_PH03
+  vzFilter:
+  - attributes:
+      name: FIL_PHTEST
+    fvTenant: TN_PEHRUBY_TEST
+  - attributes:
+      name: FIL_PHTEST2
+    fvTenant: TN_PEHRUBY_TEST
+  vzEntry:
+  - attributes:
+      name: FE_PH-HTTP
+      etherT: ip
+      prot: tcp
+      dFromPort: http
+      dToPort: http
+    fvTenant: TN_PEHRUBY_TEST
+    vzFilter: FIL_PHTEST
+  - attributes:
+      name: FE_PH-HTTP
+      etherT: ip
+      prot: tcp
+      dFromPort: http
+      dToPort: http
+    fvTenant: TN_PEHRUBY_TEST
+    vzFilter: FIL_PHTEST2
+  vzBrCP:
+  - attributes:
+      name: CON_PH01
+    fvTenant: TN_PEHRUBY_TEST
+  - attributes:
+      name: CON_PH02
+    fvTenant: TN_PEHRUBY_TEST
+  - attributes:
+      name: CON_TEN_PH02
+      scope: tenant
+    fvTenant: TN_PEHRUBY_TEST
+  vzSubj:
+  - attributes:
+      name: CS_PHTEST
+    fvTenant: TN_PEHRUBY_TEST
+    vzBrCP: CON_PH01
+  - attributes:
+      name: CS_PHTEST2
+    fvTenant: TN_PEHRUBY_TEST
+    vzBrCP: CON_PH02
+  vzRsSubjFiltAtt:
+  - attributes:
+      tnVzFilterName: FIL_PHTEST
+    fvTenant: TN_PEHRUBY_TEST
+    vzBrCP: CON_PH01
+    vzSubj: CS_PHTEST
+  - attributes:
+      tnVzFilterName: FIL_PHTEST
+    fvTenant: TN_PEHRUBY_TEST
+    vzBrCP: CON_PH02
+    vzSubj: CS_PHTEST2
+  fvAp:
+  - attributes:
+      name: AP_PHTEST
+    fvTenant: TN_PEHRUBY_TEST
+  fvAEPg:
+  - attributes:
+      name: EPG_AP-PH
+    fvTenant: TN_PEHRUBY_TEST
+    fvAp: AP_PHTEST
+  - attributes:
+      name: EPG_AP-PH2
+    fvTenant: TN_PEHRUBY_TEST
+    fvAp: AP_PHTEST
+  - attributes:
+      name: EPG_AP-PH3
+    fvTenant: TN_PEHRUBY_TEST
+    fvAp: AP_PHTEST
+  fvRsCons:
+  - attributes:
+      tnVzBrCPName: CON_PH01
+    fvTenant: TN_PEHRUBY_TEST
+    fvAp: AP_PHTEST
+    fvAEPg: EPG_AP-PH
+  - attributes:
+      tnVzBrCPName: CON_PH02
+    fvTenant: TN_PEHRUBY_TEST
+    fvAp: AP_PHTEST
+    fvAEPg: EPG_AP-PH2
+  fvRsBd:
+  - attributes:
+      tnFvBDName: BD_PH01
+    fvTenant: TN_PEHRUBY_TEST
+    fvAp: AP_PHTEST
+    fvAEPg: EPG_AP-PH
+  - attributes:
+      tnFvBDName: BD_PH02
+    fvTenant: TN_PEHRUBY_TEST
+    fvAp: AP_PHTEST
+    fvAEPg: EPG_AP-PH2
+  - attributes:
+      tnFvBDName: BD_PH03
+    fvTenant: TN_PEHRUBY_TEST
+    fvAp: AP_PHTEST
+    fvAEPg: EPG_AP-PH3
+  fvRsProv:
+  - attributes:
+      tnVzBrCPName: CON_PH01
+    fvTenant: TN_PEHRUBY_TEST
+    fvAp: AP_PHTEST
+    fvAEPg: EPG_AP-PH2
+  - attributes:
+      tnVzBrCPName: CON_PH02
+    fvTenant: TN_PEHRUBY_TEST
+    fvAp: AP_PHTEST
+    fvAEPg: EPG_AP-PH3
