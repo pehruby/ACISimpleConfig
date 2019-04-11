@@ -1,6 +1,6 @@
 # ACI Simple Config
 
-Created for NetDevOps Live! Code Exchange Challenge
+Use REST APIs to configure Cisco ACI
 
 ## Description
 
