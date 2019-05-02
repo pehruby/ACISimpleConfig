@@ -2,6 +2,8 @@
 
 Use REST APIs to configure Cisco ACI
 
+[![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/pehruby/ACISimpleConfig)
+
 ## Description
 
 A sample script which shows how Cisco ACI can be configured using REST API. Only certain ACI configuration items are supported (tenant, BD, vrf, AP, AEP, ...). The script is not intended to be used in a production environment !
