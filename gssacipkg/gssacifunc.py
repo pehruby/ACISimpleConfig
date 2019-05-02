@@ -2,6 +2,7 @@ import json
 import requests
 import urllib3
 import sys
+import re
 from jinja2 import Template
 
 
@@ -231,8 +232,31 @@ class ACIobj:
         :type urltmpl: [type]
         """
 
-        url = urltmpl.render(urlparams=cfg)
+        # url = urltmpl.render(cfg)
+        j2varlist = []
+
+        if not isinstance(urltmpl, list):   # urltmpl is not a list
+            urlTemplate = Template(urltmpl)
+        else:   # urltempl is a list
+            for item in urltmpl:    # find the proprer url template for the current cfg
+                j2varlist = re.findall(r'{{(.*)}}', item)
+                j2itemfound = True
+                for j2varitem in j2varlist:     # are all j2 variables in cfg as keys ?
+                    if j2varitem not in cfg:
+                        j2itemfound = False     # ... no, wrong URL template
+                        break
+                if j2itemfound:     # ... yes, the proper URL template was found
+                    urlTemplate = Template(item)
+                    break
+        try:
+            url = urlTemplate.render(cfg)
+        except UnboundLocalError:
+            print('Proper URL template was not found')
+            exit(1)
         return url
+
+    def get_list_of_j2_vars(self, item):
+        None
 
     def aci_create_body(self, cfgtype, cfg, bodytmpl):
         """Create POST body from the template
@@ -260,7 +284,7 @@ class ACIobj:
                 # go through of all items of specific type (i.e. fvTenant)
                 for resource in self.acicfg["aci_items"][api_item]:
                     url = self.aci_create_url(
-                        resource, Template(self.aciapidict[api_item]["urltempl"])
+                        resource, self.aciapidict[api_item]["urltempl"]
                     )  # create URL from the template
                     body = self.aci_create_body(
                         api_item, resource, self.body_template

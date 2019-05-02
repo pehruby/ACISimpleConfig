@@ -1,5 +1,3 @@
-#! /usr/bin/env python
-
 import yaml
 import os
 import argparse
@@ -56,7 +54,7 @@ def main():
     config_file = args.config
     aci_api_cfg_file = args.aciapidesc
 
-    if pswd == "":
+    if pswd == None:    # noqa
         pswd = getpass.getpass("Password:")
 
     acicfgcode = read_config_file(config_file)  # ACI IaC conf from a yaml file

@@ -45,7 +45,7 @@ pip install -r requirements.txt
 
 ## Usage examples
 
-### Python script 
+### Python script
 
 Deploy configuration specified in the ACItreecfg.yml file into Cisco ACI Sandbox using aciconf.py script
 
@@ -65,9 +65,3 @@ ansible-playbook aci-deploy.yml
 ```
 
 The playbook accepts "item" based configuration files only.
-
-
-
-
-
-
