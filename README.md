@@ -16,7 +16,7 @@ The second option is an "item" based configuration file where each configuration
 
 The "tree" based configuration is prefered. This configuration is supported by the python script aciconf.py only. Ansible playbook provided in this example doesn't support the "tree" based configuration.
 
-The aciapidesc.yml contains API URL templates used to deploy the configuration. Only a few URLs are supported !!!
+The aciapidesc.yml contains API URL templates used to deploy the configuration. Only some API URLs are supported !!!
 
 Script tree2flatconv.py transforms a "tree" based config into a "item" based.
 

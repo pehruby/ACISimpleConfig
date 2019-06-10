@@ -3,6 +3,8 @@ import requests
 import urllib3
 import sys
 import re
+import yaml
+import os
 from jinja2 import Template
 
 
@@ -11,19 +13,112 @@ class ACIconfig:
 
     """
 
-    def __init__(self, acicfg):
-        self.acicfg = acicfg
+    aciitemcfg = {}  # item configuretion structure
+    configfiledir = ""  # absolute path to configfiles dir
 
-        self.process_aci_config()
+    def __init__(self, acicfgfile, aciapidict):
+        """[summary]
+        
+        :param acicfgfile: config file name
+        :type acicfgfile: [type]
+        """
 
-    def process_aci_config(self):
+        self.aciitemcfg["aci_items"] = {}
+        aci_cfg = []
+        self.acicfgfile = acicfgfile
+        self.aciapidict = aciapidict
+        curdir = os.getcwd()
+        tmpfilename = os.path.join(curdir, self.acicfgfile)
+        # absolute path to configfile
+        self.acicfgfile = os.path.abspath(os.path.realpath(tmpfilename))
+        # directory where are config files located
+        self.configfiledir = os.path.dirname(self.acicfgfile)
+        aci_cfg = self.read_configfile(self.acicfgfile)
+        self.process_aci_config(aci_cfg)
+
+    def read_configfile(self, cfgfile):
+        """ Read a configuration file into cfgfilevar
+        
+        :param cfgfile: [description]
+        :type cfgfile: [type]
+        :return:  structured config (lists,dicts)
+        :rtype: [type]
+        """
+        # absolute path to filename
+        cfgfile = os.path.join(self.configfiledir, cfgfile)
+        if os.path.isfile(cfgfile):
+            try:
+                with open(cfgfile) as data_file:
+                    cfgfilevar = data_file.read()
+            except IOError:
+                print("Unable to read the file", cfgfile)
+                exit(1)
+        else:
+            print("Cannot find the file", cfgfile)
+            exit(1)
+        return cfgfilevar
+
+    def yaml2struct(self, cfgfilevar):
+        """Transform configuration yaml file stored in cfgfilevar into structured data
+        
+        :param cfgfilevar: [description]
+        :type cfgfilevar: [type]
+        :return: [description]
+        :rtype: [type]
+        """
+        struct = yaml.safe_load(cfgfilevar)
+        return struct
+
+    def process_aci_config(self, acicfgfile, isj2=False, vars={}):
+        """Process configuration file stored in acicfgfile (plain text)
+       
+        :param acicfgfile: [description]
+        :type acicfgfile: [type]
+        :param isj2: is is jinja2 file?
+        :type isj2: Boolean
+        :param vars: [description], defaults to {}
+        :type vars: dict, optional
+        """
         urlparams = {}
-        if (
-            "aci_trees" in self.acicfg and "aci_items" not in self.acicfg
-        ):  # tree based configuration
-            self.acicfg["aci_items"] = {}
-            for subtree in self.acicfg["aci_trees"]:
+        # if file is a j2 template
+        if isj2:
+            acicfgtemplate = Template(acicfgfile)
+            # render final yaml configuration file from j2 template
+            acicfgfile = acicfgtemplate.render(vars)
+        # convert yaml file into structured data
+        acicfg = self.yaml2struct(acicfgfile)
+        # process standard ACI config structure
+        if "imdata" in acicfg:
+            for subtree in acicfg["imdata"]:
                 self.process_tree(subtree, urlparams)
+        # 'default" names of parameters which are used in urlparams
+        # (aciapidesc)
+        # when full config tree is not specifies in aci_tree
+        # i.e. fvTenant is not specified
+        if "url_names" in acicfg:
+            urlparams = acicfg["url_names"]
+        # extract variables from configuration file
+        # if vars var conigured in j2 template, they will be used in
+        # child files
+        if "vars" in acicfg:
+            for varitem in acicfg["vars"].keys():
+                vars[varitem] = acicfg["vars"][varitem]
+        # transofm final yaml config into structured data
+        # acicfg = self.yaml2struct(renderedcfg)
+        if (
+            "aci_trees" in acicfg and "aci_items" not in acicfg
+        ):  # tree based configuration
+            for subtree in acicfg["aci_trees"]:
+                self.process_tree(subtree, urlparams)
+        # config file contains reference to another config file
+        if "aci_cfgfiles" in acicfg:
+            for filename in acicfg["aci_cfgfiles"]:
+                # absolute path to the file
+                filename = os.path.join(self.configfiledir, filename)
+                aci_cfg = self.read_configfile(filename)
+                # is filename j2 template ?
+                isj2 = filename.split(".")[-1] == "j2"
+                self.process_aci_config(aci_cfg, isj2, vars)
 
     def process_tree(self, subtree, urlparams):
         """Process a tree based configuration and create item based configuration ['aci_items']
@@ -38,8 +133,10 @@ class ACIconfig:
         newitem = {}
         mykey = list(subtree)[0]  # currently processed item of the cfg tree
 
-        if mykey not in self.acicfg["aci_items"]:
-            self.acicfg["aci_items"][mykey] = []
+        if mykey not in self.aciapidict:
+            print("cannot process key {}".format(mykey))
+        if mykey not in self.aciitemcfg["aci_items"]:
+            self.aciitemcfg["aci_items"][mykey] = []
         for itemkey in subtree[mykey]:
             if itemkey == "children":
                 continue
@@ -47,27 +144,35 @@ class ACIconfig:
             # this is problem when the dict is dumped into yaml
             newitem[itemkey] = subtree[mykey][itemkey].copy()
         for itemkey in urlparams:  # add names of parent items
-            newitem[itemkey] = urlparams[itemkey]
-        self.acicfg["aci_items"][mykey].append(newitem)
+            newitem[itemkey] = urlparams[itemkey].copy()
+        self.aciitemcfg["aci_items"][mykey].append(newitem)
+        if mykey not in urlparams:
+            urlparams[mykey] = dict()
+        if mykey in self.aciapidict and "key" in self.aciapidict[mykey]:
+            # if key attribute is specified, use it insted of name attribute
+            for keyattribute in self.aciapidict[mykey]["key"]:
+                # keyattribute = self.aciapidict[mykey]['key']
+                if keyattribute in subtree[mykey]["attributes"]:
+                    urlparams[mykey][keyattribute] = subtree[mykey]["attributes"][
+                        keyattribute
+                    ]
         if "name" in subtree[mykey]["attributes"]:
-            # i hope that all name attributes of parent items are contained as
-            # paremeters in URL of the child
-            # add name of current item to parameters dict. It will be used during child
-            # processing
+            # if 'name' is attribute of current key (mykey), add it even it is not
+            # specified in 'key' section of API description file
             # urlparams contain names of all superior items in current tree branch
             # i.e fvAEP will contain name of superior fvAP and fvTenant
             # template wich creates URL uses this urlparams dict
-            urlparams[mykey] = subtree[mykey]["attributes"]["name"]
+            urlparams[mykey]["name"] = subtree[mykey]["attributes"]["name"]
         if "children" in subtree[mykey]:  # does current item contain child(ren)?
             for key in subtree[mykey]["children"]:  # yes, process it
                 # copy is important, otherwise the same variable is referenced
                 self.process_tree(key, urlparams.copy())
 
     def getconfig(self):
-        return self.acicfg
+        return self.aciitemcfg
 
-    def getitemconfig(self):
-        itemcfg = {'aci_items': self.acicfg['aci_items']}
+    def getitemconfig(self):  # ????
+        itemcfg = {"aci_items": self.aciitemcfg["aci_items"]}
         return itemcfg
 
 
@@ -116,6 +221,10 @@ class ACIobj:
 
         self.get_acicookie()  # is it OK? how long is cookie valid?
         self.processaciapicfg()
+        self.notmodif = 0
+        self.modif = 0
+        self.deleted = 0
+        self.created = 0
 
     def processaciapicfg(self):
         # transform list into dict, and to list of configuration item keys
@@ -210,6 +319,15 @@ class ACIobj:
                     response.status_code, response.reason, status
                 )
             )
+            # update config modification statistics
+            if "not modified" in status:
+                self.notmodif += 1
+            elif "modified" in status:
+                self.modif += 1
+            elif "deleted" in status:
+                self.deleted += 1
+            elif "created" in status:
+                self.created += 1
         else:
             if resp_body["imdata"]:
                 if "error" in resp_body["imdata"][0]:
@@ -223,6 +341,13 @@ class ACIobj:
             )
             sys.exit(1)
 
+    def print_stat(self):
+
+        print("{} items created".format(self.created))
+        print("{} items modified".format(self.modif))
+        print("{} items not modified".format(self.notmodif))
+        print("{} items deleted".format(self.deleted))
+
     def aci_create_url(self, cfg, urltmpl):
         """Create URL from the template
 
@@ -235,23 +360,23 @@ class ACIobj:
         # url = urltmpl.render(cfg)
         j2varlist = []
 
-        if not isinstance(urltmpl, list):   # urltmpl is not a list
+        if not isinstance(urltmpl, list):  # urltmpl is not a list
             urlTemplate = Template(urltmpl)
-        else:   # urltempl is a list
-            for item in urltmpl:    # find the proprer url template for the current cfg
-                j2varlist = re.findall(r'{{(.*)}}', item)
+        else:  # urltempl is a list
+            for item in urltmpl:  # find the proprer url template for the current cfg
+                j2varlist = re.findall(r"{{([a-zA-Z0-9]+)\.", item)
                 j2itemfound = True
-                for j2varitem in j2varlist:     # are all j2 variables in cfg as keys ?
+                for j2varitem in j2varlist:  # are all j2 variables in cfg as keys ?
                     if j2varitem not in cfg:
-                        j2itemfound = False     # ... no, wrong URL template
+                        j2itemfound = False  # ... no, wrong URL template
                         break
-                if j2itemfound:     # ... yes, the proper URL template was found
+                if j2itemfound:  # ... yes, the proper URL template was found
                     urlTemplate = Template(item)
                     break
         try:
             url = urlTemplate.render(cfg)
         except UnboundLocalError:
-            print('Proper URL template was not found')
+            print("Proper URL template was not found", cfg)
             exit(1)
         return url
 
@@ -272,26 +397,48 @@ class ACIobj:
         body = bodytmpl.render(resourcetype=cfgtype, item=cfg)
         return body
 
-    def process_items(self):
+    def process_items(self, delete=False):
         """Proces element (item) based configuration
         elements/items are fvTenant, fvCtx, fvBD, ...
         These elemants are defined separately in the configuration file
 
         """
+        """ probably not needed ....
+        if delete:
+            # proces items in reverse order if you want to delete them
+            _apiitems = self.aciapiitems[::-1].copy()
+        else:
+        """
+        _apiitems = self.aciapiitems
+
         # go throug all configuration item keys (i.e. fvTenant, fvCtx, ...)
-        for api_item in self.aciapiitems:
+        for api_item in _apiitems:
             if api_item in self.acicfg["aci_items"]:
                 # go through of all items of specific type (i.e. fvTenant)
                 for resource in self.acicfg["aci_items"][api_item]:
+                    # print(resource)
                     url = self.aci_create_url(
                         resource, self.aciapidict[api_item]["urltempl"]
                     )  # create URL from the template
+                    if delete:
+                        resource["attributes"]["status"] = "deleted"
                     body = self.aci_create_body(
                         api_item, resource, self.body_template
                     )  # create http POST body from the template
-                    print(
-                        "Processing {} with {}".format(api_item, resource["attributes"])
-                    )
+                    if "desc" in self.aciapidict[api_item]:
+                        print(
+                            "Processing {} ({}) with {}".format(
+                                api_item,
+                                self.aciapidict[api_item]["desc"],
+                                resource["attributes"],
+                            )
+                        )
+                    else:
+                        print(
+                            "Processing {} with {}".format(
+                                api_item, resource["attributes"]
+                            )
+                        )
                     resp = self.aci_api_post(url, body)  # call ACI REST API
                     self.process_aci_post_resp(
                         api_item, resp
@@ -301,3 +448,10 @@ class ACIobj:
 
         if "aci_items" in self.acicfg:  # element(item) based configuration
             self.process_items()
+        self.print_stat()
+
+    def deletecfg(self):
+
+        if "aci_items" in self.acicfg:  # element(item) based configuration
+            self.process_items(delete=True)
+        self.print_stat()

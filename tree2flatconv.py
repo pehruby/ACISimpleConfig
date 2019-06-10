@@ -1,6 +1,4 @@
-#! /usr/bin/env python
-
-from ruamel.yaml import YAML    # preserves dict order during the dump
+from ruamel.yaml import YAML  # preserves dict order during the dump
 import os
 import argparse
 
@@ -39,6 +37,21 @@ def write_config_file(config_file, data):
         exit(1)
 
 
+def list2dict(listvar):
+    """Transform list to dict
+    
+    :param listvar: [description]
+    :type listvar: [type]
+    :return: [description]
+    :rtype: [type]
+    """
+    resultdict = {}
+    for item in listvar:
+        key = list(item.keys())[0]
+        resultdict[key] = item[key]
+    return resultdict
+
+
 def main():
 
     config_file = ""
@@ -48,17 +61,25 @@ def main():
     parser.add_argument(
         "-d", "--debug", help="debug", action="store_true", required=False
     )
-    parser.add_argument("source", help="source config file")
-    parser.add_argument("target", help="target file name")
+    parser.add_argument("-s", "--source", help="source config file", required=True)
+    parser.add_argument("-t", "--target", help="target file name", required=True)
+    parser.add_argument(
+        "-a", "--aciapidesc", help="ACI API descriprion configuration", required=True
+    )
     args = parser.parse_args()
 
     debug = args.debug  # noqa
     config_file = args.source
     target_file = args.target
+    aci_api_cfg_file = args.aciapidesc
 
-    acicfgcode = read_config_file(config_file)  # ACI IaC conf from a yaml file
-
-    MyACIconfig = ACIconfig(acicfgcode)
+    # acicfgcode = read_config_file(config_file)  # ACI IaC conf from a yaml file
+    # acicfgcode = read_config_file(config_file)  # ACI IaC conf from a yaml file
+    aciapilist = read_config_file(
+        aci_api_cfg_file
+    )  # list of API config URLs for specific ACI items
+    aciapidict = list2dict(aciapilist["aciapidesc"])
+    MyACIconfig = ACIconfig(config_file, aciapidict)
 
     target_config = MyACIconfig.getitemconfig()
     write_config_file(target_file, target_config)

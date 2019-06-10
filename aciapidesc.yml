@@ -1,61 +1,394 @@
-aciapidesc:     # url is made of "/api/mo|class" + "dn|classname"
-- fvTenant:   # tenant
-    urltempl: "/api/mo/uni.json"
-- fvCtx:      # vrf
-    urltempl: "/api/mo/uni/tn-{{fvTenant}}.json"
-- fvBD:       # bridge domain
-    urltempl: "/api/mo/uni/tn-{{fvTenant}}.json"
-- fvAp:       # application profile
-    urltempl: "/api/mo/uni/tn-{{fvTenant}}.json"
-- vzBrCP:     # contract
-    urltempl: "/api/mo/uni/tn-{{fvTenant}}.json"
-- vzFilter:   # filter
-    urltempl: "/api/mo/uni/tn-{{fvTenant}}.json"
-- fvRsCtx:    # vrf to BD binding
-    urltempl: "/api/mo/uni/tn-{{fvTenant}}/BD-{{fvBD}}.json"
-- fvSubnet:    # BD subnet
-    urltempl: "/api/mo/uni/tn-{{fvTenant}}/BD-{{fvBD}}.json"
-- fvAEPg:     # application EPG
-    urltempl: "/api/mo/uni/tn-{{fvTenant}}/ap-{{fvAp}}.json"
-- fvRsNodeAtt:  # attach static leafs to app EPG
-    urltempl: "/api/mo/uni/tn-{{fvTenant}}/ap-{{fvAp}}/epg-{{fvAEPg}}.json"
-- fvRsCons:   # contract consumed by EPG
-    urltempl: "/api/mo/uni/tn-{{fvTenant}}/ap-{{fvAp}}/epg-{{fvAEPg}}.json"
-- fvRsProv:   # contract provided by EPG
-    urltempl: "/api/mo/uni/tn-{{fvTenant}}/ap-{{fvAp}}/epg-{{fvAEPg}}.json"
-- fvRsBd:   # EPG to BD binding
-    urltempl: "/api/mo/uni/tn-{{fvTenant}}/ap-{{fvAp}}/epg-{{fvAEPg}}.json"
-- vzSubj:     # contract subject
-    urltempl: "/api/mo/uni/tn-{{fvTenant}}/brc-{{vzBrCP}}.json"
-- vzRsSubjFiltAtt:   # filter to contract binding
-    urltempl: "/api/mo/uni/tn-{{fvTenant}}/brc-{{vzBrCP}}/subj-{{vzSubj}}.json"
-- vzEntry:    # filter entry
-    urltempl: "/api/mo/uni/tn-{{fvTenant}}/flt-{{vzFilter}}.json"
-- fabricNodeIdentPol: # Fabric Membership Policy 
-    urltempl: "/api/node/mo/uni/controller.json"
-- fabricNodeIdentP: # Fabric Node Member 
-    urltempl: "/api/node/mo/uni/controller/nodeidentpol.json"
-- fabricInst: # fabric instance
-    urltempl: "/api/node/mo/uni/fabric.json"
-- firmwareFwGrp:  # firmware group
-    urltempl: "/api/node/mo/uni/fabric.json"
-- firmwareFwP:    # firmware policy
-    urltempl: "/api/node/mo/uni/fabric.json"
-- trigSchedP:    # Trigger Scheduler
-    urltempl: "/api/node/mo/uni/fabric.json"
-- maintMaintGrp:    # POD Maintenance Group 
-    urltempl: "/api/node/mo/uni/fabric.json"
-- maintMaintP:    # Maintenance Policy
-    urltempl: "/api/node/mo/uni/fabric.json"
-- trigAbsWindowP:    # One Time Window Trigger
-    urltempl: "/api/node/mo/uni/fabric/schedp-{{trigSchedP}}.json"
-- maintRsPolScheduler:    # Maintenance Policy
-    urltempl: "/api/node/mo/uni/fabric/maintpol-{{maintMaintP}}.json"
-- maintRsMgrpp:  # Relation to Maintenance Policy Group 
-    urltempl: "/api/node/mo/uni/fabric/maintgrp-{{maintMaintGrp}}.json"
-- fabricNodeBlk:  # node block
-    urltempl: 
-    - "/api/node/mo/uni/fabric/fwgrp-{{firmwareFwGrp}}.json"
-    - "/api/node/mo/uni/fabric/maintgrp-{{maintMaintGrp}}.json"
-- firmwareRsFwgrpp: # relation to firmware group
-    urltempl: "/api/node/mo/uni/fabric/fwgrp-{{firmwareFwGrp}}.json"
+aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
+  - physDomP:
+      desc: "Physical Domain"
+      urltempl: "/api/mo/uni.json"
+  - l3extDomP:
+      desc: "L3/routed external domain"
+      urltempl: "/api/mo/uni.json"
+  ## Tenant
+  - fvTenant:
+      desc: "Tenant"
+      urltempl: "/api/mo/uni.json"
+  - fvCtx:
+      desc: vrf
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - fvBD:
+      desc: "Bridge Domain"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - fvAp:
+      desc: "Application Profile"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - vzBrCP:
+      desc: "Contract"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - vzFilter:
+      desc: "Filter"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - l3extOut: 
+      desc: "L3/routed external network"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - fvRsTenantMonPol:
+      desc: "Monitoring Policy"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - bfdIfPol:
+      desc: "BFD interface Policy"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - bgpCtxPol:
+      desc: "BGP Timers Policy"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - fvRsCtx:
+      desc: "vrf to BD binding"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}.json"
+  - fvSubnet:
+      desc: "BD subnet"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}.json"
+      key: # keys available to children items (see fvRsBDSubnetToProfile), "name" is available by default
+        - "ip"
+  - fvRsBDToNdP: # ND Policy
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}.json"
+  - fvRsBdToEpRet: # End Point Retention Policy
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}.json"
+  - fvRsBDToOut: # Outside
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}.json"
+  - fvRsBDToProfile: # Route Control Profile
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}.json"
+  - fvRsIgmpsn: #  IGMP Snoop Policy
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}.json"
+  - fvRsMldsn: #  MLD Snoop Policy
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}.json"
+  - fvRsBDSubnetToProfile: #  Route Control Profile
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}/subnet-[{{fvSubnet.ip}}].json"
+  - fvAEPg: # application EPG
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}.json"
+  - fvRsBgpCtxPol: # BGP Context Policy
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ctx-{{fvCtx.name}}.json"
+  - fvRsCtxToEpRet: # End Point Retention Policy
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ctx-{{fvCtx.name}}.json"
+  - fvRsCtxToExtRouteTagPol: #  Relationship to External/Transit Route Tag Policy
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ctx-{{fvCtx.name}}.json"
+  - fvRsOspfCtxPol: #  OSPF Context Policy
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ctx-{{fvCtx.name}}.json"
+  - fvRsVrfValidationPol: # VRF Validation Policy
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ctx-{{fvCtx.name}}.json"
+  - vzAny: # Any
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ctx-{{fvCtx.name}}.json"
+  - fvRsCtxMonPol: # Monitoring Policy
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ctx-{{fvCtx.name}}.json"
+  - fvRsNodeAtt: # attach static leafs to app EPG
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
+  - fvRsProv: # contract provided by EPG
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
+  - fvRsBd: # EPG to BD binding
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
+  - fvRsPathAtt: #
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
+  - fvRsDomAtt: # Domain
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
+  - vzSubj: # contract subject
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/brc-{{vzBrCP.name}}.json"
+  - vzRsSubjFiltAtt: # filter to contract binding
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/brc-{{vzBrCP.name}}/subj-{{vzSubj.name}}.json"
+  - vzEntry: # filter entry
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/flt-{{vzFilter.name}}.json"
+  - l3extInstP: # External Network Instance Profile
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}.json"
+  - l3extRsEctx: # Private Network
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}.json"
+  - l3extRsL3DomAtt: # Domain Profile
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}.json"
+  - l3extLNodeP: # Logical Node Profile
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}.json"
+  - bgpExtP: #
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}.json"
+  - l3extSubnet: # Subnet
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/instP-{{l3extInstP.name}}.json"
+  - l3extLIfP: # Logical Interface Profile
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}.json"
+  - l3extRsNodeL3OutAtt: # Fabric Node
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}.json"
+      key: 
+        - "tDn"
+  - bgpProtP: # Protocol Profile
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}.json"
+  - ipRouteP: #
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/rsnodeL3OutAtt-[{{l3extRsNodeL3OutAtt.tDn}}].json"
+  - l3extRsPathL3OutAtt: #  Leaf Port
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}.json"
+      key: 
+        - "tDn"
+  - l3extRsNdIfPol: # ND Policy
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}.json"
+  - l3extRsLIfPCustQosPol: # custom qoS policy
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}.json"
+  - l3extRsIngressQosDppPol: # Data Plane Policy Ingress
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}.json"
+  - l3extRsEgressQosDppPol: # Data Plane Policy Egress
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}.json"
+  - l3extRsArpIfPol: #  ARP Policy
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}.json"
+  - bfdIfP: # Interface Profile
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}.json"
+  - bfdRsIfPol: # Interface Policy, corret URL
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}/bfdIfP.json"
+  - bgpRsBgpNodeCtxPol: # BGP Context Policy Per Profile
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/protp.json"
+      key: 
+        - "tDn"
+  - bgpPeerP: # Peer Connectivity Profile
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}/rspathL3OutAtt-[{{l3extRsPathL3OutAtt.tDn}}].json"
+      key:
+        - "addr"
+  - bgpLocalAsnP: # Local Autonomous System Profile
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}/rspathL3OutAtt-[{{l3extRsPathL3OutAtt.tDn}}]/peerP-[{{bgpPeerP.addr}}].json"
+  - bgpAsP: # Autonomous System Profile
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}/rspathL3OutAtt-[{{l3extRsPathL3OutAtt.tDn}}]/peerP-[{{bgpPeerP.addr}}].json"
+  - bgpRsPeerPfxPol: #
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}/rspathL3OutAtt-[{{l3extRsPathL3OutAtt.tDn}}]/peerP-[{{bgpPeerP.addr}}].json"
+  - fvRsCustQosPol: # Custom QOS Policy
+      urltempl:
+        - "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
+        - "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/instP-{{l3extInstP.name}}.json"
+  - fvRsCons: # contract consumed by EPG
+      urltempl: 
+      - "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
+      - "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/instP-{{l3extInstP.name}}.json"
+  - fabricNodeIdentPol: # Fabric Membership Policy
+      urltempl: "/api/node/mo/uni/controller.json"
+  - fabricNodeIdentP: # Fabric Node Member
+      urltempl: "/api/node/mo/uni/controller/nodeidentpol.json"
+  ## Fabric
+  - fabricInst: # fabric instance
+      urltempl: "/api/node/mo/uni/fabric.json"
+  - firmwareFwGrp: # firmware group
+      urltempl: "/api/node/mo/uni/fabric.json"
+  - firmwareFwP: # firmware policy
+      urltempl: "/api/node/mo/uni/fabric.json"
+  - trigSchedP: # Trigger Scheduler
+      urltempl: "/api/node/mo/uni/fabric.json"
+  - maintMaintGrp: # POD Maintenance Group
+      urltempl: "/api/node/mo/uni/fabric.json"
+  - maintMaintP: # Maintenance Policy
+      urltempl: "/api/node/mo/uni/fabric.json"
+  - vpcInstPol: # VPC Domain Policy
+      urltempl: "/api/node/mo/uni/fabric.json"
+  - datetimePol: # Date and Time Policy
+      urltempl: "/api/node/mo/uni/fabric.json"
+  - snmpPol: # SNMP Policy
+      urltempl: "/api/node/mo/uni/fabric.json"
+  - commPol: # Communication Policy
+      urltempl: "/api/node/mo/uni/fabric.json"
+  - dnsProfile: #  DNS Profile
+      urltempl: "/api/node/mo/uni/fabric.json"
+  - fabricPodPGrp: # Pod Policy Group
+      urltempl: "/api/node/mo/uni/fabric/funcprof.json"
+  - fabricPodS: # Pod Selector
+      urltempl: "/api/node/mo/uni/fabric/podprof-default.json"
+  - trigAbsWindowP: # One Time Window Trigger
+      urltempl: "/api/node/mo/uni/fabric/schedp-{{trigSchedP.name}}.json"
+  - maintRsPolScheduler: # Maintenance Policy
+      urltempl: "/api/node/mo/uni/fabric/maintpol-{{maintMaintP.name}}.json"
+  - maintRsMgrpp: # Relation to Maintenance Policy Group
+      urltempl: "/api/node/mo/uni/fabric/maintgrp-{{maintMaintGrp.name}}.json"
+  - fabricNodeBlk: # node block
+      urltempl:
+        - "/api/node/mo/uni/fabric/fwgrp-{{firmwareFwGrp.name}}.json"
+        - "/api/node/mo/uni/fabric/maintgrp-{{maintMaintGrp.name}}.json"
+  - firmwareRsFwgrpp: # relation to firmware group
+      urltempl: "/api/node/mo/uni/fabric/fwgrp-{{firmwareFwGrp.name}}.json"
+  - datetimeNtpProv: # Providers
+      urltempl: "/api/node/mo/uni/fabric/time-{{datetimePol.name}}.json"
+  - datetimeRsNtpProvToEpg: # Relation to Reachability Epg
+      urltempl: "/api/node/mo/uni/fabric/time-{{datetimePol.name}}/ntpprov-{{datetimeNtpProv.name}}.json"
+  - snmpUserP: # User Profile
+      urltempl: "/api/node/mo/uni/fabric/snmppol-{{snmpPol.name}}.json"
+  - snmpTrapFwdServerP: # Client Entry
+      urltempl: "/api/node/mo/uni/fabric/snmppol-{{snmpPol.name}}.json"
+  - commHttp: #  HTTP Service
+      urltempl: "/api/node/mo/uni/fabric/comm-{{commPol.name}}.json"
+  - commHttps: #  HTTPS Service
+      urltempl: "/api/node/mo/uni/fabric/comm-{{commPol.name}}.json"
+  - commRsKeyRing: # Key Ring
+      urltempl: "/api/node/mo/uni/fabric/comm-{{commPol.name}}/https.json"
+  - commSetup: #   Communication Setup
+      urltempl: "/api/node/mo/uni/fabric/comm-{{commPol.name}}.json"
+  - commShellinabox: # Shellinabox Service
+      urltempl: "/api/node/mo/uni/fabric/comm-{{commPol.name}}.json"
+  - commSsh: # Ssh Service
+      urltempl: "/api/node/mo/uni/fabric/comm-{{commPol.name}}.json"
+  - commTelnet: # Telnet Service
+      urltempl: "/api/node/mo/uni/fabric/comm-{{commPol.name}}.json"
+  - dnsRsProfileToEpg: # Relation to the EPg through which DNS server is reachable
+      urltempl: "/api/node/mo/uni/fabric/dnsp-{{dnsProfile.name}}.json"
+  - dnsProv: # DNS Provider
+      urltempl: "/api/node/mo/uni/fabric/dnsp-{{dnsProfile.name}}.json"
+  - dnsDomain: # DNS Domain
+      urltempl: "/api/node/mo/uni/fabric/dnsp-{{dnsProfile.name}}.json"
+  - fabricRsCommPol: # Communication Policy
+      urltempl: "/api/node/mo/uni/fabric/funcprof/podpgrp-{{fabricPodPGrp.name}}.json"
+  - fabricRsSnmpPol: # SNMP Policy
+      urltempl: "/api/node/mo/uni/fabric/funcprof/podpgrp-{{fabricPodPGrp.name}}.json"
+  - fabricRsTimePol: # Time Policy
+      urltempl: "/api/node/mo/uni/fabric/funcprof/podpgrp-{{fabricPodPGrp.name}}.json"
+  - fabricRsPodPGrp: # Pod Policy Group
+      urltempl: "/api/node/mo/uni/fabric/podprof-default/pods-{{fabricPodS.name}}-typ-{{fabricPodS.type}}.json" # range is parameter in parent !
+  - fabricPodBlk: # Pod Block
+      urltempl: "/api/node/mo/uni/fabric/podprof-default/pods-{{fabricPodS.name}}-typ-{{fabricPodS.type}}.json" # range is parameter in parent !
+  ## Infra
+  - cdpIfPol: # Interface policy, CDP
+      urltempl: "/api/node/mo/uni/infra.json"
+  - coppIfPol: # Per interface per protocol CoPP policy
+      urltempl: "/api/node/mo/uni/infra.json"
+  - lldpIfPol: # Interface policy, LLDP
+      urltempl: "/api/node/mo/uni/infra.json"
+  - lacpLagPol: # Interface policy, LACP
+      urltempl: "/api/node/mo/uni/infra.json"
+  - lacpIfPol: # LACP Member Policy
+      urltempl: "/api/node/mo/uni/infra.json"
+  - fabricHIfPol: # Link Level Policy
+      urltempl: "/api/node/mo/uni/infra.json"
+  - qosPfcIfPol: # Interface Priority Flow Control Policy
+      urltempl: "/api/node/mo/uni/infra.json"
+  - stpIfPol: # Spanning Tree Interface Policy
+      urltempl: "/api/node/mo/uni/infra.json"
+  - stormctrlIfPol: # Storm Control Interface Policy
+      urltempl: "/api/node/mo/uni/infra.json"
+  - mcpIfPol: # Mis-cabling Protocol Interface Policy
+      urltempl: "/api/node/mo/uni/infra.json"
+  - l2IfPol: #  L2 Interface Policy
+      urltempl: "/api/node/mo/uni/infra.json"
+  - l2PortSecurityPol: # Port Security Policy
+      urltempl: "/api/node/mo/uni/infra.json"
+  - infraAttEntityP: # Attachable access entity profile
+      urltempl: "/api/node/mo/uni/infra.json"
+  - infraAccPortP: # Leaf Interface Profile
+      urltempl: "/api/node/mo/uni/infra.json"
+  - infraNodeP: # Leaf Profile
+      urltempl: "/api/node/mo/uni/infra.json"
+  - fvnsVlanInstP: # Leaf Profile
+      key:
+        - allocMode
+      urltempl: "/api/node/mo/uni/infra.json"
+  - coppLeafProfile: # Profiles for CoPP to be applied at the Leaf level
+      urltempl: "/api/node/mo/uni/infra.json"
+  - infraAccPortGrp: # Acc port policy group
+      urltempl: "/api/node/mo/uni/infra/funcprof.json"
+  - infraAccNodePGrp: # Access Switch Policy Group
+      urltempl: "/api/node/mo/uni/infra/funcprof.json"
+  - infraAccBndlGrp: # PC/VPC Interface Policy Group
+      urltempl: "/api/node/mo/uni/infra/funcprof.json"
+  - fvnsEncapBlk: #
+      urltempl: "/api/node/mo/uni/infra/vlanns-{{fvnsVlanInstP.name}}-{{fvnsVlanInstP.allocMode}}.json"
+  - infraHPortS:
+      urltempl:
+        - "/api/node/mo/uni/infra/accportprof-{{infraAccPortP.name}}.json" #  Access Port Selector
+        - "/api/node/mo/uni/infra/fexprof-{{infraFexP.name}}.json" #   FEX Profile
+  - infraFexBndlGrp: # Fex Bundle Group
+      urltempl: "/api/node/mo/uni/infra/fexprof-{{infraFexP.name}}.json" #
+  - infraRsMonFexInfraPol: #  Relation to FEX Access Monitoring Policy
+      urltempl: "/api/node/mo/uni/infra/fexprof-{{infraFexP.name}}/fexbundle-{{infraFexBndlGrp.name}}.json" #
+  - infraRsDomP: # Domain 
+      urltempl: "/api/node/mo/uni/infra/attentp-{{infraAttEntityP.name}}.json"
+  - infraGeneric: # Access Generic 
+      urltempl: "/api/node/mo/uni/infra/attentp-{{infraAttEntityP.name}}.json"
+  - infraRsFuncToEpg: # EPGs Using Function
+      urltempl: "/api/node/mo/uni/infra/attentp-{{infraAttEntityP.name}}/gen-default.json"
+  - infraLeafS: # Switch Association
+      urltempl: "/api/node/mo/uni/infra/nprof-{{infraNodeP.name}}.json"
+  - infraRsAccPortP: # Interface Profile Association
+      urltempl: "/api/node/mo/uni/infra/nprof-{{infraNodeP.name}}.json"
+  - infraPortBlk:
+      urltempl:
+        - "/api/node/mo/uni/infra/accportprof-{{infraAccPortP.name}}/hports-{{infraHPortS.name}}-typ-range.json" # Access Port Block
+        - "/api/node/mo/uni/infra/fexprof-{{infraFexP.name}}/hports-{{infraHPortS.name}}-typ-range.json" # Access Port Block
+  - infraNodeBlk: # Node Block
+      urltempl: "/api/node/mo/uni/infra/nprof-{{infraNodeP.name}}/leaves-{{infraLeafS.name}}-typ-range.json"
+  - infraRsAccNodePGrp: # Relation to Node Policy Group
+      urltempl: "/api/node/mo/uni/infra/nprof-{{infraNodeP.name}}/leaves-{{infraLeafS.name}}-typ-range.json"
+  - infraRsAccBaseGrp:
+      urltempl:
+        - "/api/node/mo/uni/infra/accportprof-{{infraAccPortP.name}}/hports-{{infraHPortS.name}}-typ-range.json" # Access Access Group
+        - "/api/node/mo/uni/infra/fexprof-{{infraFexP.name}}/hports-{{infraHPortS.name}}-typ-range.json" # Access Access Group
+  - infraRsCdpIfPol: # link policy group with CDP int policy
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json" # leaf access port policy
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json" # VPC Interface policy
+  - infraRsHIfPol: # link policy group with LInk Level policy
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsL2IfPol: # link policy group with L2 interface policy
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsLldpIfPol: # link policy group with LLDP policy
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsMcpIfPol: # link policy group with  Mis-cabling policy
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsStormctrlIfPol: # link policy group with Storm Control policy
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsStpIfPol: # link policy group with STP policy
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsQosIngressDppIfPol: #
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsQosEgressDppIfPol: #
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsMonIfInfraPol: #
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsMacsecIfPol: #
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsQosSdIfPol: #
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsQosDppIfPol: #
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsCoppIfPol: #
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsFcIfPol: #
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsQosPfcIfPol: #
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsL2PortSecurityPol: #
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsL2PortAuthPol: #
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsAttEntP: # link policy group with AAEP
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsLeafCoppProfile: # CoPP Profile for Leafs
+      urltempl: "/api/node/mo/uni/infra/funcprof/accnodepgrp-{{infraAccNodePGrp.name}}.json"
+  - infraRsBfdIpv4InstPol: # BFD Ipv4 Instance Policy
+      urltempl: "/api/node/mo/uni/infra/funcprof/accnodepgrp-{{infraAccNodePGrp.name}}.json"
+  - infraRsVlanNs:
+      urltempl:
+        - "/api/node/mo/uni/phys-{{physDomP.name}}.json" # bind Vlans to Physical domain
+        - "/api/node/mo/uni/l3dom-{{l3extDomP.name}}.json" # bind Vlans to L3 ext domain
