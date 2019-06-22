@@ -5,7 +5,7 @@ import sys
 import re
 import yaml
 import os
-from jinja2 import Template
+from jinja2 import Template, UndefinedError
 
 
 class ACIconfig:
@@ -132,13 +132,25 @@ class ACIconfig:
 
         newitem = {}
         mykey = list(subtree)[0]  # currently processed item of the cfg tree
+        stopproc = False  # dont't recurse down the tree, stop processing this branch
 
         if mykey not in self.aciapidict:
             print("cannot process key {}".format(mykey))
+            return
+        # stop processing this branch, save all children together with this item
+        if "stopproc" in self.aciapidict[mykey]:
+            if (
+                self.aciapidict[mykey]["stopproc"] == "True"
+                or self.aciapidict[mykey]["stopproc"] == "Yes"
+            ):
+                stopproc = True
+
         if mykey not in self.aciitemcfg["aci_items"]:
             self.aciitemcfg["aci_items"][mykey] = []
         for itemkey in subtree[mykey]:
-            if itemkey == "children":
+            # save all children together with this item if stopproc == True
+            # if stopproc == False continue with processing of children
+            if itemkey == "children" and not stopproc:
                 continue
             # copy is important, it removes link to original subtree (dict) location
             # this is problem when the dict is dumped into yaml
@@ -163,7 +175,9 @@ class ACIconfig:
             # i.e fvAEP will contain name of superior fvAP and fvTenant
             # template wich creates URL uses this urlparams dict
             urlparams[mykey]["name"] = subtree[mykey]["attributes"]["name"]
-        if "children" in subtree[mykey]:  # does current item contain child(ren)?
+        if (
+            "children" in subtree[mykey] and not stopproc
+        ):  # does current item contain child(ren)?
             for key in subtree[mykey]["children"]:  # yes, process it
                 # copy is important, otherwise the same variable is referenced
                 self.process_tree(key, urlparams.copy())
@@ -375,7 +389,7 @@ class ACIobj:
                     break
         try:
             url = urlTemplate.render(cfg)
-        except UnboundLocalError:
+        except (UnboundLocalError, UndefinedError):
             print("Proper URL template was not found", cfg)
             exit(1)
         return url
@@ -397,6 +411,25 @@ class ACIobj:
         body = bodytmpl.render(resourcetype=cfgtype, item=cfg)
         return body
 
+    def aci_create_body2(self, cfgtype, cfg):
+        """Create POST body
+        
+        :param cfgtype: [description]
+        :type cfgtype: [type]
+        :param cfg: [description]
+        :type cfg: [type]
+        :return: [description]
+        :rtype: [type]
+        """
+
+        bodydict = {cfgtype: {}}
+
+        bodydict[cfgtype]["attributes"] = cfg["attributes"].copy()
+        if "children" in cfg:
+            bodydict[cfgtype]["children"] = cfg["children"].copy()
+        bodyjson = json.dumps(bodydict)
+        return bodyjson
+
     def process_items(self, delete=False):
         """Proces element (item) based configuration
         elements/items are fvTenant, fvCtx, fvBD, ...
@@ -417,14 +450,6 @@ class ACIobj:
                 # go through of all items of specific type (i.e. fvTenant)
                 for resource in self.acicfg["aci_items"][api_item]:
                     # print(resource)
-                    url = self.aci_create_url(
-                        resource, self.aciapidict[api_item]["urltempl"]
-                    )  # create URL from the template
-                    if delete:
-                        resource["attributes"]["status"] = "deleted"
-                    body = self.aci_create_body(
-                        api_item, resource, self.body_template
-                    )  # create http POST body from the template
                     if "desc" in self.aciapidict[api_item]:
                         print(
                             "Processing {} ({}) with {}".format(
@@ -439,6 +464,14 @@ class ACIobj:
                                 api_item, resource["attributes"]
                             )
                         )
+                    url = self.aci_create_url(
+                        resource, self.aciapidict[api_item]["urltempl"]
+                    )  # create URL from the template
+                    if delete:
+                        resource["attributes"]["status"] = "deleted"
+                    body = self.aci_create_body2(
+                        api_item, resource
+                    )  # create http POST body from the template
                     resp = self.aci_api_post(url, body)  # call ACI REST API
                     self.process_aci_post_resp(
                         api_item, resp

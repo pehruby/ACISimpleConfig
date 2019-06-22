@@ -36,6 +36,34 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
   - bgpCtxPol:
       desc: "BGP Timers Policy"
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - vnsLDevVip:
+      desc: "L4-L7 Devices"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - vnsSvcCont:
+      desc: "Service Container"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - vnsAbsGraph:
+      desc: "L4-L7 Service Graph Template"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - vnsLDevCtx:
+      desc: "Logical Device Context"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+      key:
+        - "ctrctNameOrLbl"
+        - "graphNameOrLbl"
+        - "nodeNameOrLbl"
+  - tagExtMngdInst:
+      desc: "External tag instance"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - dbgacEpToExt:
+      desc: "End-Point to Ext. IP Address Atomic Counter Policy"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - dbgacExtToEp:
+      desc: "Ext IP Address to End-Point Atomic Counter Policy"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - drawCont:
+      desc: "Graph Node Container"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
   - fvRsCtx:
       desc: "vrf to BD binding"
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}.json"
@@ -76,17 +104,33 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ctx-{{fvCtx.name}}.json"
   - fvRsNodeAtt: # attach static leafs to app EPG
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
-  - fvRsProv: # contract provided by EPG
-      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
   - fvRsBd: # EPG to BD binding
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
+  - fvCrtrn: #
+      desc: "Criterion "
+      stopproc: "Yes"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
+  - fvRsIntraEpg: #
+      desc: "Intra EPg Contract "
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
   - fvRsPathAtt: #
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
   - fvRsDomAtt: # Domain
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
+  - fvVmAttr:   # not used, see fvCrtrn with stopproc
+      desc: "VM Attribute"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}/crtrn.json"
+  - vzRsAnyToProv:
+      desc: "Contract"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ctx-{{fvCtx.name}}/any.json"
+  - vzRsAnyToCons:
+      desc: "Contract"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ctx-{{fvCtx.name}}/any.json"
   - vzSubj: # contract subject
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/brc-{{vzBrCP.name}}.json"
   - vzRsSubjFiltAtt: # filter to contract binding
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/brc-{{vzBrCP.name}}/subj-{{vzSubj.name}}.json"
+  - vzRsSdwanPol: #
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/brc-{{vzBrCP.name}}/subj-{{vzSubj.name}}.json"
   - vzEntry: # filter entry
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/flt-{{vzFilter.name}}.json"
@@ -148,14 +192,102 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
       urltempl:
         - "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
         - "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/instP-{{l3extInstP.name}}.json"
+  - fvRsSecInherited: #
+      desc: "Security inheritance"
+      urltempl: 
+      - "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
+      - "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/instP-{{l3extInstP.name}}.json"
+  - fvRsProv: # contract provided by EPG
+      urltempl: 
+      - "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
+      - "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/instP-{{l3extInstP.name}}.json"
   - fvRsCons: # contract consumed by EPG
       urltempl: 
       - "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
       - "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/instP-{{l3extInstP.name}}.json"
-  - fabricNodeIdentPol: # Fabric Membership Policy
+  - vnsRsALDevToPhysDomP:
+      desc: "Relation from L4-L7 Devices to a Vlan Namespace Instance Profile"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/lDevVip-{{vnsLDevVip.name}}.json"
+  - vnsLIf:
+      desc: "Logical Interface"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/lDevVip-{{vnsLDevVip.name}}.json"
+  - vnsCDev:
+      desc: "Concrete Device"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/lDevVip-{{vnsLDevVip.name}}.json"
+  - vnsRsCIfAttN:
+      desc: "Relation to a Set of Concrete Interfaces from the Device in the Cluster "
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/lDevVip-{{vnsLDevVip.name}}//lIf-{{vnsLIf.name}}.json"
+  - vnsCIf:
+      desc: "Concrete Interface"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/lDevVip-{{vnsLDevVip.name}}//cDev-{{vnsCDev.name}}.json"
+  - vnsRsCIfPathAtt:
+      desc: "Relation from Concrete Interface to the Physical Port on the ILeaf"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/lDevVip-{{vnsLDevVip.name}}//cDev-{{vnsCDev.name}}/cIf-[{{vnsCIf.name}}].json"
+  - vnsRsLDevCtxToLDev:
+      desc: "Relation from a LDev Context to an LDev"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ldevCtx-c-{{vnsLDevCtx.ctrctNameOrLbl}}-g-{{vnsLDevCtx.graphNameOrLbl}}-n-{{vnsLDevCtx.nodeNameOrLbl}}.json"
+  - vnsLIfCtx:
+      desc: "Logical Interface Context"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ldevCtx-c-{{vnsLDevCtx.ctrctNameOrLbl}}-g-{{vnsLDevCtx.graphNameOrLbl}}-n-{{vnsLDevCtx.nodeNameOrLbl}}.json"
+      key:
+        - "connNameOrLbl"
+  - vnsRsLIfCtxToLIf:
+      desc: "Relation from LIf Context to LIf"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ldevCtx-c-{{vnsLDevCtx.ctrctNameOrLbl}}-g-{{vnsLDevCtx.graphNameOrLbl}}-n-{{vnsLDevCtx.nodeNameOrLbl}}/lIfCtx-c-{{vnsLIfCtx.connNameOrLbl}}.json"
+  - vnsRsLIfCtxToCustQosPol:
+      desc: "Relation from LIf Context to QosPolicy"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ldevCtx-c-{{vnsLDevCtx.ctrctNameOrLbl}}-g-{{vnsLDevCtx.graphNameOrLbl}}-n-{{vnsLDevCtx.nodeNameOrLbl}}/lIfCtx-c-{{vnsLIfCtx.connNameOrLbl}}.json"
+  - vnsRsLIfCtxToBD:
+      desc: "Bridge Domain"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ldevCtx-c-{{vnsLDevCtx.ctrctNameOrLbl}}-g-{{vnsLDevCtx.graphNameOrLbl}}-n-{{vnsLDevCtx.nodeNameOrLbl}}/lIfCtx-c-{{vnsLIfCtx.connNameOrLbl}}.json"
+  - vnsAbsTermNodeProv:
+      desc: " Provider Terminal Node"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/AbsGraph-{{vnsAbsGraph.name}}.json"
+  - vnsAbsTermNodeCon:
+      desc: ""
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/AbsGraph-{{vnsAbsGraph.name}}.json"
+  - vnsAbsNode:
+      desc: "Function Node"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/AbsGraph-{{vnsAbsGraph.name}}.json"
+  - vnsAbsConnection:
+      desc: "Connection"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/AbsGraph-{{vnsAbsGraph.name}}.json"
+  - vnsOutTerm:
+      desc: "Out Terminal"
+      urltempl: 
+      - "/api/mo/uni/tn-{{fvTenant.name}}/AbsGraph-{{vnsAbsGraph.name}}/AbsTermNodeProv-{{vnsAbsTermNodeProv.name}}.json"
+      - "/api/mo/uni/tn-{{fvTenant.name}}/AbsGraph-{{vnsAbsGraph.name}}/AbsTermNodeCon-{{vnsAbsTermNodeCon.name}}.json"
+  - vnsInTerm:
+      desc: "In Terminal"
+      urltempl:
+      - "/api/mo/uni/tn-{{fvTenant.name}}/AbsGraph-{{vnsAbsGraph.name}}/AbsTermNodeProv-{{vnsAbsTermNodeProv.name}}.json"
+      - "/api/mo/uni/tn-{{fvTenant.name}}/AbsGraph-{{vnsAbsGraph.name}}/AbsTermNodeCon-{{vnsAbsTermNodeCon.name}}.json"
+  - vnsAbsTermConn:
+      desc: "Terminal Connector"
+      urltempl: 
+      - "/api/mo/uni/tn-{{fvTenant.name}}/AbsGraph-{{vnsAbsGraph.name}}/AbsTermNodeProv-{{vnsAbsTermNodeProv.name}}.json"
+      - "/api/mo/uni/tn-{{fvTenant.name}}/AbsGraph-{{vnsAbsGraph.name}}/AbsTermNodeCon-{{vnsAbsTermNodeCon.name}}.json"
+  - vnsRsNodeToLDev:
+      desc: "Relation from a AbsNode to an LDev"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/AbsGraph-{{vnsAbsGraph.name}}/AbsNode-{{vnsAbsNode.name}}.json"
+  - vnsAbsFuncConn:
+      desc: "Function Connector"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/AbsGraph-{{vnsAbsGraph.name}}/AbsNode-{{vnsAbsNode.name}}.json"
+  - vnsRsAbsConnectionConns:
+      desc: "Connection"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/AbsGraph-{{vnsAbsGraph.name}}/AbsConnection-{{vnsAbsConnection.name}}.json"
+  - fabricNodeIdentPol:
+      desc: "Fabric Membership Policy"
       urltempl: "/api/node/mo/uni/controller.json"
   - fabricNodeIdentP: # Fabric Node Member
       urltempl: "/api/node/mo/uni/controller/nodeidentpol.json"
+  - fvSiteAssociated: #
+      desc: "Remote Site ID Container"
+      urltempl:
+      - "/api/mo/uni/tn-{{fvTenant.name}}/ctx-{{fvCtx.name}}.json"
+      - "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}.json"
+      - "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
+      - "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/instP-{{l3extInstP.name}}.json"
   ## Fabric
   - fabricInst: # fabric instance
       urltempl: "/api/node/mo/uni/fabric.json"
