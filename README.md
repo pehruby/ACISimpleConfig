@@ -57,6 +57,43 @@ Deploy configuration specified in the ACItreecfg.yml file into Cisco ACI Sandbox
 
 The script accepts both "tree" and "item" based configuration yaml files
 
+#### Excel as a source of template variables
+
+```text
+ py -3 ./aciconf.py -u admin -i sandboxapicdc.cisco.com -c ./excelfiles/bdotest.j2 -a ./aciapidesc.yml -x "./excelfiles/ACI_Parameters.xlsx;BDO;2"
+```
+
+Parameter -x contains excelFileName|excelSheetName|lineNrWhereTableBegins
+Each line of the table is used as a source of variables which are used in the j2 file specified using -c parameter
+
+Using the following table, one BD is created (if doesn't already exist) and one deleted (if isn't already deleted)
+
+BDOname    | Status     | Tenant | Description | VRF 
+-----------|------------|--------|-------------|-----
+PHTEST1_BDO |  |XLSTEST_TEN | Test BDO 1 | TEST1_VRF
+PHTEST2_BDO | deleted |XLSTEST_TEN | Test BDO 2 | TEST2_VRF
+
+Appropriate Jinja2 template
+
+```j2
+url_names:
+  fvTenant: 
+    name: "{{Tenant}}"
+
+aci_trees:
+  - fvBD:   # BD
+      attributes:
+        name: "{{BDOname}}"
+        status: "{{Status}}"
+        multiDstPktAct: "bd-flood"
+        unkMacUcastAct: proxy
+      children:
+        - fvRsCtx:  # vrf to BD binding
+            attributes:
+              status: "{{Status}}"
+              tnFvCtxName: "{{VRF}}"
+```
+
 ### Ansible
 
 Deploy configuration specified in the roles/tn_pehruby_test/vars/main.yml into Cisco ACI Sandbox using an Ansible playbook

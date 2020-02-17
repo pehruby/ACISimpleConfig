@@ -1,0 +1,59 @@
+url_names:
+  fvTenant: 
+    name: "{{Tenant}}"
+
+aci_trees:
+  - fvCtx:
+      attributes:
+        annotation: ''
+        status: "{{Status}}"
+        bdEnforcedEnable: 'no'
+        descr: "{{Description}}"
+        ipDataPlaneLearning: enabled
+        knwMcastAct: permit
+        name: "{{VRFname}}"
+        nameAlias: ''
+        ownerKey: ''
+        ownerTag: ''
+        pcEnfDir: ingress
+        pcEnfPref: enforced
+      children:
+      - fvRsVrfValidationPol:
+          attributes:
+            annotation: ''
+            status: "{{Status}}"
+            tnL3extVrfValidationPolName: ''
+      - fvRsCtxToEpRet:
+          attributes:
+            annotation: ''
+            status: "{{Status}}"
+            tnFvEpRetPolName: ''
+      - vzAny:
+          attributes:
+            annotation: ''
+            status: "{{Status}}"
+            descr: ''
+            matchT: AtleastOne
+            name: ''
+            nameAlias: ''
+            prefGrMemb: disabled
+      - fvRsOspfCtxPol:
+          attributes:
+            annotation: ''
+            status: "{{Status}}"
+            tnOspfCtxPolName: ''
+      - fvRsCtxMonPol:
+          attributes:
+            annotation: ''
+            status: "{{Status}}"
+            tnMonEPGPolName: default
+      - fvRsCtxToExtRouteTagPol:
+          attributes:
+            annotation: ''
+            status: "{{Status}}"
+            tnL3extRouteTagPolName: ''
+      - fvRsBgpCtxPol:
+          attributes:
+            annotation: ''
+            status: "{{Status}}"
+            tnBgpCtxPolName: ''

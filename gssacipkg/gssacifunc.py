@@ -16,25 +16,30 @@ class ACIconfig:
     aciitemcfg = {}  # item configuretion structure
     configfiledir = ""  # absolute path to configfiles dir
 
-    def __init__(self, acicfgfile, aciapidict):
+    def __init__(self, acicfgfile, aciapidict, excel=False):
         """[summary]
         
-        :param acicfgfile: config file name
+        :param acicfgfile: config struct
         :type acicfgfile: [type]
         """
 
-        self.aciitemcfg["aci_items"] = {}
-        aci_cfg = []
-        self.acicfgfile = acicfgfile
         self.aciapidict = aciapidict
-        curdir = os.getcwd()
-        tmpfilename = os.path.join(curdir, self.acicfgfile)
-        # absolute path to configfile
-        self.acicfgfile = os.path.abspath(os.path.realpath(tmpfilename))
-        # directory where are config files located
-        self.configfiledir = os.path.dirname(self.acicfgfile)
-        aci_cfg = self.read_configfile(self.acicfgfile)
-        self.process_aci_config(aci_cfg)
+        self.aciitemcfg["aci_items"] = {}
+        if excel:
+            # if Excel, this parameter already contains struct variable, not a filename
+            aci_cfg = acicfgfile
+        else:
+
+            aci_cfg = []
+            self.acicfgfile = acicfgfile
+            curdir = os.getcwd()
+            tmpfilename = os.path.join(curdir, self.acicfgfile)
+            # absolute path to configfile
+            self.acicfgfile = os.path.abspath(os.path.realpath(tmpfilename))
+            # directory where are config files located
+            self.configfiledir = os.path.dirname(self.acicfgfile)
+            aci_cfg = self.read_configfile(self.acicfgfile)
+        self.process_aci_config(aci_cfg, excel)
 
     def read_configfile(self, cfgfile):
         """ Read a configuration file into cfgfilevar
@@ -46,6 +51,7 @@ class ACIconfig:
         """
         # absolute path to filename
         cfgfile = os.path.join(self.configfiledir, cfgfile)
+        cfgfile = os.path.normpath(cfgfile)
         if os.path.isfile(cfgfile):
             try:
                 with open(cfgfile) as data_file:
@@ -69,7 +75,7 @@ class ACIconfig:
         struct = yaml.safe_load(cfgfilevar)
         return struct
 
-    def process_aci_config(self, acicfgfile, isj2=False, vars={}):
+    def process_aci_config(self, acicfgfile, is_cfg_struct=False, isj2=False, vars={}):
         """Process configuration file stored in acicfgfile (plain text)
        
         :param acicfgfile: [description]
@@ -85,8 +91,12 @@ class ACIconfig:
             acicfgtemplate = Template(acicfgfile)
             # render final yaml configuration file from j2 template
             acicfgfile = acicfgtemplate.render(vars)
-        # convert yaml file into structured data
-        acicfg = self.yaml2struct(acicfgfile)
+            # print(acicfgfile)
+        if is_cfg_struct:       # acicfgfile is in fact not a yaml file but a python data structure
+            acicfg = acicfgfile
+        else:
+            # convert yaml file into structured data
+            acicfg = self.yaml2struct(acicfgfile)
         # process standard ACI config structure
         if "imdata" in acicfg:
             for subtree in acicfg["imdata"]:
@@ -110,16 +120,28 @@ class ACIconfig:
         ):  # tree based configuration
             for subtree in acicfg["aci_trees"]:
                 self.process_tree(subtree, urlparams)
+        elif ("aci_items" in acicfg):
+            self.aciitemcfg["aci_items"] = acicfg["aci_items"]  # !!! THIS SHOULD BE DONE BETTER !!!
+            #self.process_items_cfg(acicfg["aci_items"])
         # config file contains reference to another config file
         if "aci_cfgfiles" in acicfg:
             for filename in acicfg["aci_cfgfiles"]:
                 # absolute path to the file
                 filename = os.path.join(self.configfiledir, filename)
+                filename = os.path.normpath(filename)
                 aci_cfg = self.read_configfile(filename)
                 # is filename j2 template ?
                 isj2 = filename.split(".")[-1] == "j2"
-                self.process_aci_config(aci_cfg, isj2, vars)
+                self.process_aci_config(aci_cfg, False, isj2, vars)
 
+    def process_items_cfg(self, itemscfg):
+
+        for key in itemscfg.keys():
+            if key not in self.aciitemcfg["aci_items"]:
+                self.aciitemcfg["aci_items"][key] = []
+            for keyitem in itemscfg[key]:
+                self.aciitemcfg["aci_items"][key].append(keyitem)
+            
     def process_tree(self, subtree, urlparams):
         """Process a tree based configuration and create item based configuration ['aci_items']
         Recurent function
@@ -176,11 +198,14 @@ class ACIconfig:
             # template wich creates URL uses this urlparams dict
             urlparams[mykey]["name"] = subtree[mykey]["attributes"]["name"]
         if (
-            "children" in subtree[mykey] and not stopproc
+            "children" in subtree[mykey] and not stopproc 
         ):  # does current item contain child(ren)?
-            for key in subtree[mykey]["children"]:  # yes, process it
-                # copy is important, otherwise the same variable is referenced
-                self.process_tree(key, urlparams.copy())
+            try:
+                for key in subtree[mykey]["children"]:  # yes, process it
+                    # copy is important, otherwise the same variable is referenced
+                    self.process_tree(key, urlparams.copy())
+            except TypeError:   # no children are defined
+                None
 
     def getconfig(self):
         return self.aciitemcfg

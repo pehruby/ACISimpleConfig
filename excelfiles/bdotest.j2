@@ -1,0 +1,16 @@
+url_names:
+  fvTenant: 
+    name: "{{Tenant}}"
+
+aci_trees:
+  - fvBD:   # BD
+      attributes:
+        name: "{{BDOname}}"
+        status: "{{Status}}"
+        multiDstPktAct: "bd-flood"
+        unkMacUcastAct: proxy
+      children:
+        - fvRsCtx:  # vrf to BD binding
+            attributes:
+              status: "{{Status}}"
+              tnFvCtxName: "{{VRF}}"

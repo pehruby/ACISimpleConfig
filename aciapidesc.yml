@@ -36,6 +36,9 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
   - bgpCtxPol:
       desc: "BGP Timers Policy"
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - dhcpRelayP:
+      desc: "BGP Timers Policy"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
   - vnsLDevVip:
       desc: "L4-L7 Devices"
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
@@ -64,6 +67,24 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
   - drawCont:
       desc: "Graph Node Container"
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - drawInst:
+      desc: "Graph Node"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}.json"
+  - vnsSvcRedirectPol:
+      desc: "Service Redirect Policy"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/svcCont.json"
+  - vnsSvcEPgPol:
+      desc: "Service EPg Policy"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/svcCont.json"
+  - vnsRedirectDest:
+      desc: "Destination of redirected traffic"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/svcCont/svcRedirectPol-{{vnsSvcRedirectPol.name}}.json"
+  - dhcpProvDhcp:
+      desc: "DHCP Provider"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/relayp-{{dhcpRelayP.name}}.json"
+  - dhcpRsProv:
+      desc: "DHCP Provider"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/relayp-{{dhcpRelayP.name}}.json"
   - fvRsCtx:
       desc: "vrf to BD binding"
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}.json"
@@ -73,6 +94,8 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
       key: # keys available to children items (see fvRsBDSubnetToProfile), "name" is available by default
         - "ip"
   - fvRsBDToNdP: # ND Policy
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}.json"
+  - dhcpLbl:
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}.json"
   - fvRsBdToEpRet: # End Point Retention Policy
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}.json"
@@ -86,6 +109,9 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}.json"
   - fvRsBDSubnetToProfile: #  Route Control Profile
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}/subnet-[{{fvSubnet.ip}}].json"
+  - dhcpRsDhcpOptionPol:
+      desc: "DHCP Option Policy "
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/BD-{{fvBD.name}}/dhcplbl-{{dhcpLbl.name}}.json"
   - fvAEPg: # application EPG
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}.json"
   - fvRsBgpCtxPol: # BGP Context Policy
@@ -116,10 +142,15 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
   - fvRsPathAtt: #
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
   - fvRsDomAtt: # Domain
+      key:
+        - "tDn"
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
   - fvVmAttr:   # not used, see fvCrtrn with stopproc
       desc: "VM Attribute"
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}/crtrn.json"
+  - vmmSecP:
+      desc: "VMM Security Policy"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}/rsdomAtt-[{{fvRsDomAtt.tDn}}].json"
   - vzRsAnyToProv:
       desc: "Contract"
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ctx-{{fvCtx.name}}/any.json"
@@ -129,6 +160,9 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
   - vzSubj: # contract subject
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/brc-{{vzBrCP.name}}.json"
   - vzRsSubjFiltAtt: # filter to contract binding
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/brc-{{vzBrCP.name}}/subj-{{vzSubj.name}}.json"
+  - vzRsSubjGraphAtt: # subject to service graph binding
+      desc: "Subject to service graph binding"
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/brc-{{vzBrCP.name}}/subj-{{vzSubj.name}}.json"
   - vzRsSdwanPol: #
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/brc-{{vzBrCP.name}}/subj-{{vzSubj.name}}.json"
@@ -144,6 +178,18 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}.json"
   - bgpExtP: #
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}.json"
+  - ospfExtP: #
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}.json"
+  - l3extDefaultRouteLeakP:
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}.json"
+  - rtctrlProfile:
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}.json"
+  - rtctrlCtxP:
+      desc: "Route Control Context"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/prof-{{rtctrlProfile.name}}.json"
+  - rtctrlRsCtxPToSubjP:
+      desc: " Subject Profile"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/prof-{{rtctrlProfile.name}}/ctx-{{rtctrlCtxP.name}}.json"
   - l3extSubnet: # Subnet
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/instP-{{l3extInstP.name}}.json"
   - l3extLIfP: # Logical Interface Profile
@@ -156,10 +202,18 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}.json"
   - ipRouteP: #
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/rsnodeL3OutAtt-[{{l3extRsNodeL3OutAtt.tDn}}].json"
+      key:
+        - "ip"
+  - ipNexthopP: #
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/rsnodeL3OutAtt-[{{l3extRsNodeL3OutAtt.tDn}}]/rt-[{{ipRouteP.ip}}].json"
   - l3extRsPathL3OutAtt: #  Leaf Port
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}.json"
       key: 
         - "tDn"
+  - ospfIfP: # OSPF interface profile
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}.json"
+  - ospfRsIfPol:    # OSPF interface policy
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}/ospfIfP.json"
   - l3extRsNdIfPol: # ND Policy
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}.json"
   - l3extRsLIfPCustQosPol: # custom qoS policy
@@ -178,6 +232,12 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/protp.json"
       key: 
         - "tDn"
+  - l3extMember:
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}/rspathL3OutAtt-[{{l3extRsPathL3OutAtt.tDn}}].json"
+      key:
+        - "side"
+  - l3extIp:
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}/rspathL3OutAtt-[{{l3extRsPathL3OutAtt.tDn}}]/mem-{{l3extMember.side}}.json"
   - bgpPeerP: # Peer Connectivity Profile
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/lnodep-{{l3extLNodeP.name}}/lifp-{{l3extLIfP.name}}/rspathL3OutAtt-[{{l3extRsPathL3OutAtt.tDn}}].json"
       key:
@@ -192,9 +252,13 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
       urltempl:
         - "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
         - "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/instP-{{l3extInstP.name}}.json"
+  - fvVip: #
+      desc: ""
+      urltempl: 
+      - "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
   - fvRsSecInherited: #
       desc: "Security inheritance"
-      urltempl: 
+      urltempl:
       - "/api/mo/uni/tn-{{fvTenant.name}}/ap-{{fvAp.name}}/epg-{{fvAEPg.name}}.json"
       - "/api/mo/uni/tn-{{fvTenant.name}}/out-{{l3extOut.name}}/instP-{{l3extInstP.name}}.json"
   - fvRsProv: # contract provided by EPG
@@ -220,6 +284,18 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
   - vnsCIf:
       desc: "Concrete Interface"
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/lDevVip-{{vnsLDevVip.name}}//cDev-{{vnsCDev.name}}.json"
+  - vnsRsCDevToChassis:
+      desc: "Chassis for CDevs"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/lDevVip-{{vnsLDevVip.name}}//cDev-{{vnsCDev.name}}.json"
+  - vnsCMgmt:
+      desc: "Management Interface"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/lDevVip-{{vnsLDevVip.name}}//cDev-{{vnsCDev.name}}.json"
+  - vnsCCred:
+      desc: "Credentials"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/lDevVip-{{vnsLDevVip.name}}//cDev-{{vnsCDev.name}}.json"
+  - vnsCCredSecret:
+      desc: "Secret Credentials"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/lDevVip-{{vnsLDevVip.name}}//cDev-{{vnsCDev.name}}.json"
   - vnsRsCIfPathAtt:
       desc: "Relation from Concrete Interface to the Physical Port on the ILeaf"
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/lDevVip-{{vnsLDevVip.name}}//cDev-{{vnsCDev.name}}/cIf-[{{vnsCIf.name}}].json"
@@ -233,6 +309,15 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
         - "connNameOrLbl"
   - vnsRsLIfCtxToLIf:
       desc: "Relation from LIf Context to LIf"
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ldevCtx-c-{{vnsLDevCtx.ctrctNameOrLbl}}-g-{{vnsLDevCtx.graphNameOrLbl}}-n-{{vnsLDevCtx.nodeNameOrLbl}}/lIfCtx-c-{{vnsLIfCtx.connNameOrLbl}}.json"
+  - vnsRsLIfCtxToInstP:
+      desc: ""
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ldevCtx-c-{{vnsLDevCtx.ctrctNameOrLbl}}-g-{{vnsLDevCtx.graphNameOrLbl}}-n-{{vnsLDevCtx.nodeNameOrLbl}}/lIfCtx-c-{{vnsLIfCtx.connNameOrLbl}}.json"
+  - vnsRsLIfCtxToSvcRedirectPol:
+      desc: ""
+      urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ldevCtx-c-{{vnsLDevCtx.ctrctNameOrLbl}}-g-{{vnsLDevCtx.graphNameOrLbl}}-n-{{vnsLDevCtx.nodeNameOrLbl}}/lIfCtx-c-{{vnsLIfCtx.connNameOrLbl}}.json"
+  - vnsRsLIfCtxToSvcEPgPol:
+      desc: ""
       urltempl: "/api/mo/uni/tn-{{fvTenant.name}}/ldevCtx-c-{{vnsLDevCtx.ctrctNameOrLbl}}-g-{{vnsLDevCtx.graphNameOrLbl}}-n-{{vnsLDevCtx.nodeNameOrLbl}}/lIfCtx-c-{{vnsLIfCtx.connNameOrLbl}}.json"
   - vnsRsLIfCtxToCustQosPol:
       desc: "Relation from LIf Context to QosPolicy"
@@ -394,6 +479,8 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
       urltempl: "/api/node/mo/uni/infra.json"
   - infraAccPortP: # Leaf Interface Profile
       urltempl: "/api/node/mo/uni/infra.json"
+  - infraFexP: # Leaf Interface Profile
+      urltempl: "/api/node/mo/uni/infra.json"
   - infraNodeP: # Leaf Profile
       urltempl: "/api/node/mo/uni/infra.json"
   - fvnsVlanInstP: # Leaf Profile
@@ -432,6 +519,10 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
       urltempl:
         - "/api/node/mo/uni/infra/accportprof-{{infraAccPortP.name}}/hports-{{infraHPortS.name}}-typ-range.json" # Access Port Block
         - "/api/node/mo/uni/infra/fexprof-{{infraFexP.name}}/hports-{{infraHPortS.name}}-typ-range.json" # Access Port Block
+  - infraSubPortBlk:
+      urltempl:
+        - "/api/node/mo/uni/infra/accportprof-{{infraAccPortP.name}}/hports-{{infraHPortS.name}}-typ-range.json" # Access SubPort Block
+        - "/api/node/mo/uni/infra/fexprof-{{infraFexP.name}}/hports-{{infraHPortS.name}}-typ-range.json" # Access SubPort Block
   - infraNodeBlk: # Node Block
       urltempl: "/api/node/mo/uni/infra/nprof-{{infraNodeP.name}}/leaves-{{infraLeafS.name}}-typ-range.json"
   - infraRsAccNodePGrp: # Relation to Node Policy Group
@@ -449,6 +540,10 @@ aciapidesc: # url is made of "/api/mo|class" + "dn|classname"
         - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
         - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
   - infraRsL2IfPol: # link policy group with L2 interface policy
+      urltempl:
+        - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
+        - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"
+  - infraRsLacpPol: # link policy group with LACP policy
       urltempl:
         - "/api/node/mo/uni/infra/funcprof/accportgrp-{{infraAccPortGrp.name}}.json"
         - "/api/node/mo/uni/infra/funcprof/accbundle-{{infraAccBndlGrp.name}}.json"

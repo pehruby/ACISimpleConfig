@@ -1,0 +1,56 @@
+aci_trees:
+  - fvTenant:
+      attributes:
+        annotation: ''
+        descr: Serverfarm Aachen
+        name: SF_AC1-test2
+        nameAlias: ''
+        ownerKey: ''
+        ownerTag: ''
+      children:
+      - fvCtx:
+          attributes:
+            annotation: ''
+            bdEnforcedEnable: 'no'
+            descr: ''
+            ipDataPlaneLearning: enabled
+            knwMcastAct: permit
+            name: EU_SDSF_1_VRF
+            nameAlias: ''
+            ownerKey: ''
+            ownerTag: ''
+            pcEnfDir: ingress
+            pcEnfPref: enforced
+          children:
+          - fvRsVrfValidationPol:
+              attributes:
+                annotation: ''
+                tnL3extVrfValidationPolName: ''
+          - fvRsCtxToEpRet:
+              attributes:
+                annotation: ''
+                tnFvEpRetPolName: ''
+          - vzAny:
+              attributes:
+                annotation: ''
+                descr: ''
+                matchT: AtleastOne
+                name: ''
+                nameAlias: ''
+                prefGrMemb: disabled
+          - fvRsOspfCtxPol:
+              attributes:
+                annotation: ''
+                tnOspfCtxPolName: ''
+          - fvRsCtxMonPol:
+              attributes:
+                annotation: ''
+                tnMonEPGPolName: default
+          - fvRsCtxToExtRouteTagPol:
+              attributes:
+                annotation: ''
+                tnL3extRouteTagPolName: ''
+          - fvRsBgpCtxPol:
+              attributes:
+                annotation: ''
+                tnBgpCtxPolName: ''
