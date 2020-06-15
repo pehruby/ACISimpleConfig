@@ -1,0 +1,383 @@
+
+
+aci_items:
+{#>>> L4 Device >>>#}
+  - vnsLDevVip:
+      fvTenant: 
+        name: {{tenant.name}}
+      attributes:
+        annotation: ""
+        contextAware: single-Context
+        devtype: PHYSICAL
+        funcType: GoTo
+        isCopy: "no"
+        managed: "no"
+        mode: legacy-Mode
+        name: {{serviceGraph.L4device.name}}
+        nameAlias: ""
+        packageModel: ""
+        promMode: "no"
+        svcType: {{serviceGraph.svcType}}
+        trunking: "no"
+      children:
+        - vnsRsALDevToPhysDomP:
+            attributes:
+              annotation: ""
+              tDn: uni/phys-{{serviceGraph.L4device.physDomain}}
+        - vnsLIf:
+            attributes:
+              annotation: ""
+              encap: {{serviceGraph.L4device.cluster.interface1.encap}}
+              name: {{serviceGraph.L4device.cluster.interface1.name}}
+              nameAlias: ""
+            children:
+{% for _physDevice in serviceGraph.L4device.cluster.physDevice %}
+              - vnsRsCIfAttN:
+                  attributes:
+                    annotation: ""
+                    tDn: "uni/tn-{{tenant.name}}/lDevVip-{{serviceGraph.L4device.name}}/cDev-{{_physDevice.name}}/cIf-[{{serviceGraph.L4device.cluster.interface1.name}}]"
+{% endfor %} {# _physDevice #}
+{% if serviceGraph.L4device.cluster.interface2 %}
+        - vnsLIf:
+            attributes:
+              annotation: ""
+              encap: {{serviceGraph.L4device.cluster.interface2.encap}}
+              name: {{serviceGraph.L4device.cluster.interface2.name}}
+              nameAlias: ""
+            children:
+{%  for _physDevice in serviceGraph.L4device.cluster.physDevice %}
+              - vnsRsCIfAttN:
+                  attributes:
+                    annotation: ""
+                    tDn: "uni/tn-{{tenant.name}}/lDevVip-{{serviceGraph.L4device.name}}/cDev-{{_physDevice.name}}/cIf-[{{serviceGraph.L4device.cluster.interface2.name}}]"
+{%  endfor %} {# _physDevice #}
+{% endif %} {# serviceGraph.L4device.cluster.interface2 #}
+{% for _physDevice in serviceGraph.L4device.cluster.physDevice %}
+        - vnsCDev:
+            attributes:
+              annotation: ""
+              cloneCount: "0"
+              devCtxLbl: ""
+              host: ""
+              isCloneOperation: "no"
+              isTemplate: "no"
+              name: {{_physDevice.name}}
+              nameAlias: ""
+              vcenterName: ""
+              vmName: ""
+            children:
+              - vnsCIf:
+                  attributes:
+                    annotation: ""
+                    name: {{serviceGraph.L4device.cluster.interface1.name}}
+                    nameAlias: ""
+                    vnicName: ""
+                  children:
+                    - vnsRsCIfPathAtt:
+                        attributes:
+                          annotation: ""
+                          tDn: "{{_physDevice.interface1.iface}}"
+{%  if serviceGraph.L4device.cluster.interface2 %}
+              - vnsCIf:
+                  attributes:
+                    annotation: ""
+                    name: {{serviceGraph.L4device.cluster.interface2.name}}
+                    nameAlias: ""
+                    vnicName: ""
+                  children:
+                    - vnsRsCIfPathAtt:
+                        attributes:
+                          annotation: ""
+                          tDn: "{{_physDevice.interface2.iface}}"
+{%  endif%}
+{% endfor %} {# _physDevice #}
+{#<<< L4 Device <<<#}
+{#>>> Device Selection Policy >>>#}
+{% for _contract in serviceGraph.contract %}
+  - vnsLDevCtx:
+      fvTenant: 
+        name: {{tenant.name}}
+      attributes:
+        annotation: ""
+        context: ""
+        ctrctNameOrLbl: {{_contract.name}}
+        descr: ""
+        dn: uni/tn-{{tenant.name}}/ldevCtx-c-{{_contract.name}}-g-{{serviceGraph.template.name}}-n-N1
+        graphNameOrLbl: {{serviceGraph.template.name}}
+        name: ""
+        nameAlias: ""
+        nodeNameOrLbl: N1
+      children:
+        - vnsRsLDevCtxToLDev:
+            attributes:
+              annotation: ""
+              tDn: uni/tn-{{tenant.name}}/lDevVip-{{serviceGraph.L4device.name}}
+        - vnsLIfCtx:
+            attributes:
+              annotation: ""
+              connNameOrLbl: consumer
+              descr: ""
+              l3Dest: "no"
+              name: ""
+              nameAlias: ""
+              permitLog: "no"
+            children:
+{% if serviceGraph.policy.cons.redirectPol %}
+              - vnsRsLIfCtxToSvcRedirectPol:
+                  attributes:
+                    annotation: ""
+                    tDn: uni/tn-{{tenant.name}}/svcCont/svcRedirectPol-{{serviceGraph.L4device.name}}-CONS_PBR
+{% endif %}
+              - vnsRsLIfCtxToLIf:
+                  attributes:
+                    annotation: ""
+                    tDn: uni/tn-{{tenant.name}}/lDevVip-{{serviceGraph.L4device.name}}/lIf-{{serviceGraph.L4device.cluster[serviceGraph.policy.cons.clusterIntType].name}}
+              - vnsRsLIfCtxToCustQosPol:
+                  attributes:
+                    annotation: ""
+                    tnQosCustomPolName: ""
+              - vnsRsLIfCtxToBD:
+                  attributes:
+                    annotation: ""
+                    tDn: uni/tn-{{tenant.name}}/BD-{{serviceGraph.policy.cons.bdo}}
+        - vnsLIfCtx:
+            attributes:
+              annotation: ""
+              connNameOrLbl: provider
+              descr: ""
+              l3Dest: "no"
+              name: ""
+              nameAlias: ""
+              permitLog: "no"
+            children:
+{% if serviceGraph.policy.prov.redirectPol %}
+              - vnsRsLIfCtxToSvcRedirectPol:
+                  attributes:
+                    annotation: ""
+                    tDn: uni/tn-{{tenant.name}}/svcCont/svcRedirectPol-{{serviceGraph.L4device.name}}-PROV_PBR
+{% endif %}
+              - vnsRsLIfCtxToLIf:
+                  attributes:
+                    annotation: ""
+                    tDn: uni/tn-{{tenant.name}}/lDevVip-{{serviceGraph.L4device.name}}/lIf-{{serviceGraph.L4device.cluster[serviceGraph.policy.prov.clusterIntType].name}}
+              - vnsRsLIfCtxToCustQosPol:
+                  attributes:
+                    annotation: ""
+                    tnQosCustomPolName: ""
+              - vnsRsLIfCtxToBD:
+                  attributes:
+                    annotation: ""
+                    tDn: uni/tn-{{tenant.name}}/BD-{{serviceGraph.policy.prov.bdo}}
+{% endfor %} {# _contract #}
+{#<<< Device Selection Policy <<<#}
+{#>>> Service Graph Template >>>#}
+  - vnsAbsGraph:
+      fvTenant: 
+        name: {{tenant.name}}
+      attributes:
+        annotation: ""
+        descr: ""
+        name: {{serviceGraph.template.name}}
+        nameAlias: ""
+        ownerKey: ""
+        ownerTag: ""
+        type: legacy
+        uiTemplateType: UNSPECIFIED
+      children:
+        - vnsAbsTermNodeProv:
+            attributes:
+              annotation: ""
+              descr: ""
+              name: T2
+              nameAlias: ""
+              ownerKey: ""
+              ownerTag: ""
+            children:
+              - vnsOutTerm:
+                  attributes:
+                    annotation: ""
+                    descr: ""
+                    name: ""
+                    nameAlias: ""
+              - vnsInTerm:
+                  attributes:
+                    annotation: ""
+                    descr: ""
+                    name: ""
+                    nameAlias: ""
+              - vnsAbsTermConn:
+                  attributes:
+                    annotation: ""
+                    attNotify: "no"
+                    descr: ""
+                    name: "1"
+                    nameAlias: ""
+                    ownerKey: ""
+                    ownerTag: ""
+        - vnsAbsTermNodeCon:
+            attributes:
+              annotation: ""
+              descr: ""
+              name: T1
+              nameAlias: ""
+              ownerKey: ""
+              ownerTag: ""
+            children:
+              - vnsOutTerm:
+                  attributes:
+                    annotation: ""
+                    descr: ""
+                    name: ""
+                    nameAlias: ""
+              - vnsInTerm:
+                  attributes:
+                    annotation: ""
+                    descr: ""
+                    name: ""
+                    nameAlias: ""
+              - vnsAbsTermConn:
+                  attributes:
+                    annotation: ""
+                    attNotify: "no"
+                    descr: ""
+                    name: "1"
+                    nameAlias: ""
+                    ownerKey: ""
+                    ownerTag: ""
+        - vnsAbsNode:
+            attributes:
+              annotation: ""
+              descr: ""
+              funcTemplateType: FW_ROUTED
+              funcType: GoTo
+              isCopy: "no"
+              managed: "no"
+              name: N1
+              nameAlias: ""
+              ownerKey: ""
+              ownerTag: ""
+              routingMode: {{serviceGraph.template.routingMode|default('unspecified')}}
+              sequenceNumber: "0"
+              shareEncap: "no"
+            children:
+              - vnsRsNodeToLDev:
+                  attributes:
+                    annotation: ""
+                    tDn: uni/tn-{{tenant.name}}/lDevVip-{{serviceGraph.L4device.name}}
+              - vnsAbsFuncConn:
+                  attributes:
+                    annotation: ""
+                    attNotify: "no"
+                    descr: ""
+                    name: consumer
+                    nameAlias: ""
+                    ownerKey: ""
+                    ownerTag: ""
+              - vnsAbsFuncConn:
+                  attributes:
+                    annotation: ""
+                    attNotify: "no"
+                    descr: ""
+                    name: provider
+                    nameAlias: ""
+                    ownerKey: ""
+                    ownerTag: ""
+        - vnsAbsConnection:
+            attributes:
+              adjType: L2
+              annotation: ""
+              connDir: provider
+              connType: external
+              descr: ""
+              directConnect: "no"
+              name: C2
+              nameAlias: ""
+              ownerKey: ""
+              ownerTag: ""
+              unicastRoute: "yes"
+            children:
+              - vnsRsAbsConnectionConns:
+                  attributes:
+                    annotation: ""
+                    tDn: uni/tn-{{tenant.name}}/AbsGraph-{{serviceGraph.template.name}}/AbsTermNodeProv-T2/AbsTConn
+              - vnsRsAbsConnectionConns:
+                  attributes:
+                    annotation: ""
+                    tDn: uni/tn-{{tenant.name}}/AbsGraph-{{serviceGraph.template.name}}/AbsNode-N1/AbsFConn-provider
+        - vnsAbsConnection:
+            attributes:
+              adjType: L2
+              annotation: ""
+              connDir: provider
+              connType: external
+              descr: ""
+              directConnect: "no"
+              name: C1
+              nameAlias: ""
+              ownerKey: ""
+              ownerTag: ""
+              unicastRoute: "yes"
+            children:
+              - vnsRsAbsConnectionConns:
+                  attributes:
+                    annotation: ""
+                    tDn: uni/tn-{{tenant.name}}/AbsGraph-{{serviceGraph.template.name}}/AbsNode-N1/AbsFConn-consumer
+              - vnsRsAbsConnectionConns:
+                  attributes:
+                    annotation: ""
+                    tDn: uni/tn-{{tenant.name}}/AbsGraph-{{serviceGraph.template.name}}/AbsTermNodeCon-T1/AbsTConn
+{#<<< Service Graph Template <<<#}
+{#>>> Redirect Policies >>>#}
+{% if serviceGraph.policy.cons.redirectPol %}
+  - vnsSvcRedirectPol:
+      fvTenant: 
+        name: {{tenant.name}}
+      attributes:
+        AnycastEnabled: "no"
+        annotation: ""
+        descr: ""
+        destType: {{serviceGraph.policy.cons.redirectPol.type}}
+        hashingAlgorithm: sip-dip-prototype
+        maxThresholdPercent: "0"
+        minThresholdPercent: "0"
+        name: {{serviceGraph.L4device.name}}-CONS_PBR
+        nameAlias: ""
+        ownerKey: ""
+        ownerTag: ""
+        programLocalPodOnly: "no"
+        resilientHashEnabled: "no"
+        thresholdDownAction: permit
+        thresholdEnable: "no"
+      children:
+        - vnsRedirectDest:
+            attributes:
+              ip: {{serviceGraph.policy.cons.redirectPol.ip}}
+              mac: {{serviceGraph.policy.cons.redirectPol.mac}}
+{% endif %}
+{% if serviceGraph.policy.prov.redirectPol %}
+  - vnsSvcRedirectPol:
+      fvTenant: 
+        name: {{tenant.name}}
+      attributes:
+        AnycastEnabled: "no"
+        annotation: ""
+        descr: ""
+        destType: {{serviceGraph.policy.prov.redirectPol.type}}
+        hashingAlgorithm: sip-dip-prototype
+        maxThresholdPercent: "0"
+        minThresholdPercent: "0"
+        name: {{serviceGraph.L4device.name}}-PROV_PBR
+        nameAlias: ""
+        ownerKey: ""
+        ownerTag: ""
+        programLocalPodOnly: "no"
+        resilientHashEnabled: "no"
+        thresholdDownAction: permit
+        thresholdEnable: "no"
+      children:
+        - vnsRedirectDest:
+            attributes:
+              ip: {{serviceGraph.policy.prov.redirectPol.ip}}
+              mac: {{serviceGraph.policy.prov.redirectPol.mac}}
+{% endif %}
+{#<<< Redirect Policies <<<#}

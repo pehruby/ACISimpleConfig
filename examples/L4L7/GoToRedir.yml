@@ -1,0 +1,58 @@
+vars:
+  tenant:
+    name: "PH-SANDBOX_TEN"
+  serviceGraph:
+    svcType: FW
+    fncType: GoTo
+    L4device:
+      name: FWTEST_L47
+      physDomain: PH-SANDBOX-PHY_DOM
+      cluster:
+        interface1:   # mandatory
+          name: OUTSIDE_LOG
+          encap: vlan-3503
+        interface2:   # optional (only if FW is a 2-arm device)
+          name: INSIDE_LOG
+          encap: vlan-3504
+        physDevice:   # EPG membership is not specified (should be?)
+          - name: ROUTERFW_CDE
+            interface1:
+              iface: "topology/pod-1/paths-101/pathep-[eth1/10]"
+            interface2:
+              iface: "topology/pod-1/paths-101/pathep-[eth1/10]"
+#          - name: Device2
+#            cons:
+#              iface: "topology/pod-2/paths-1203/extpaths-101/pathep-[eth1/4]"
+#            prov:
+#              iface: "topology/pod-2/paths-1203/extpaths-101/pathep-[eth1/4]"
+    template:
+      name: PHFW2_SEG
+      #routeRedirect: unspecified
+      funcTemplateType: FW_ROUTED
+      routingMode: Redirect
+    policy:
+      cons:
+        clusterIntType: interface1
+        bdo: SVC1_BDO
+        redirectPol:
+          type: L3
+          ip: 10.2.47.66
+          mac: E0:2F:6D:4A:29:B5
+      prov:
+        clusterIntType: interface2
+        bdo: SVC2_BDO
+        redirectPol:
+          type: L3
+          ip: 10.2.47.74
+          mac: E0:2F:6D:4A:29:B5
+    contract:
+      - name: PHFW_CON
+        subject: Subject
+      - name: PHFW2_CON
+        subject: test
+      
+
+aci_cfgfiles:
+# creates L4L7 Device, SGT, Device Selection Policy
+  - L4L7svc-items.j2
+#  - PBRtoConSubj.j2

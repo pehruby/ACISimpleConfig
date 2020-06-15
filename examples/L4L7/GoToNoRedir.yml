@@ -1,0 +1,49 @@
+vars:
+  tenant:
+    name: "PH-SANDBOX_TEN"
+  serviceGraph:
+    svcType: FW
+    fncType: GoTo
+    L4device:
+      name: FWTEST
+      physDomain: PH-SANDBOX-PHY_DOM
+      cluster:
+        cons:
+          name: outside
+          encap: vlan-3503
+        prov:
+          name: inside
+          encap: vlan-3504
+        physDevice:   # EPG membership is not specified (should be?)
+          - name: Device1
+            cons:
+              iface: "topology/pod-2/paths-1203/extpaths-101/pathep-[eth1/3]"
+            prov:
+              iface: "topology/pod-2/paths-1203/extpaths-101/pathep-[eth1/3]"
+#          - name: Device2
+#            cons:
+#              iface: "topology/pod-2/paths-1203/extpaths-101/pathep-[eth1/4]"
+#            prov:
+#              iface: "topology/pod-2/paths-1203/extpaths-101/pathep-[eth1/4]"
+    template:
+      name: FWTEST_SGT
+      #routeRedirect: unspecified
+      funcTemplateType: FW_ROUTED
+      routingMode: unspecified
+    policy:
+      cons:
+        bdo: BD2_BDO
+      prov:
+        bdo: BD1_BDO
+    contract:
+      name: SG-FW_CON
+      #provBdo: BD1_BDO
+      #consBdo: BD2_BDO
+      
+
+url_names:
+  fvTenant: 
+    name: "{{tenant.name}}"
+
+aci_cfgfiles:
+  - alltogether.j2

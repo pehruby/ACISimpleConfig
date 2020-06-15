@@ -1,0 +1,15 @@
+
+
+{# Binds Service Graph to Contract Subject #}
+aci_items:
+{% for _contract in serviceGraph.contract %}
+  - vzRsSubjGraphAtt:
+      fvTenant: 
+        name: {{tenant.name}}
+      vzBrCP: 
+        name: {{_contract.name}}
+      vzSubj: 
+        name: {{_contract.subject}}
+      attributes:
+        tnVnsAbsGraphName: {{serviceGraph.template.name}}
+{% endfor %}

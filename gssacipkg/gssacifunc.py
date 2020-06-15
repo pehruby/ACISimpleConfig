@@ -121,8 +121,8 @@ class ACIconfig:
             for subtree in acicfg["aci_trees"]:
                 self.process_tree(subtree, urlparams)
         elif ("aci_items" in acicfg):
-            self.aciitemcfg["aci_items"] = acicfg["aci_items"]  # !!! THIS SHOULD BE DONE BETTER !!!
-            #self.process_items_cfg(acicfg["aci_items"])
+            #self.aciitemcfg["aci_items"] = acicfg["aci_items"]  # !!! THIS SHOULD BE DONE BETTER !!!
+            self.process_items_cfg(acicfg["aci_items"])
         # config file contains reference to another config file
         if "aci_cfgfiles" in acicfg:
             for filename in acicfg["aci_cfgfiles"]:
@@ -133,14 +133,18 @@ class ACIconfig:
                 # is filename j2 template ?
                 isj2 = filename.split(".")[-1] == "j2"
                 self.process_aci_config(aci_cfg, False, isj2, vars)
-
+ 
     def process_items_cfg(self, itemscfg):
+        """Process list of item based configuration. Add them to final item configuration
+        structure self.aciitemcfg
+        """
 
-        for key in itemscfg.keys():
+        for item in itemscfg:
+            key = list(item.keys())[0]
             if key not in self.aciitemcfg["aci_items"]:
                 self.aciitemcfg["aci_items"][key] = []
-            for keyitem in itemscfg[key]:
-                self.aciitemcfg["aci_items"][key].append(keyitem)
+
+            self.aciitemcfg["aci_items"][key].append(item[key])
             
     def process_tree(self, subtree, urlparams):
         """Process a tree based configuration and create item based configuration ['aci_items']
