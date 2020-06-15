@@ -14,8 +14,6 @@ The structure of the configuration file can be "tree" based. In this case the st
 
 The second option is an "item" based configuration file where each configuration item is specified separately in the file. See file roles/tn_pehruby_test/vars/main.yml
 
-The "tree" based configuration is prefered. This configuration is supported by the python script aciconf.py only. Ansible playbook provided in this example doesn't support the "tree" based configuration.
-
 The aciapidesc.yml contains API URL templates used to deploy the configuration. Only some API URLs are supported !!!
 
 Script tree2flatconv.py transforms a "tree" based config into a "item" based.
@@ -47,12 +45,12 @@ pip install -r requirements.txt
 
 ## Usage examples
 
-### Python script
+### Tenant configuration example
 
 Deploy configuration specified in the ACItreecfg.yml file into Cisco ACI Sandbox using aciconf.py script
 
 ```text
- ./aciconf.py -u admin -p ciscopsdt -i sandboxapicdc.cisco.com -c ./ACItreecfg.yml -a ./aciapidesc.yml
+ py -3 ./aciconf.py -u admin -p ciscopsdt -i sandboxapicdc.cisco.com -c ./ACItreecfg.yml -a ./aciapidesc.yml
 ```
 
 The script accepts both "tree" and "item" based configuration yaml files
@@ -94,13 +92,14 @@ aci_trees:
               tnFvCtxName: "{{VRF}}"
 ```
 
-### Ansible
-
-Deploy configuration specified in the roles/tn_pehruby_test/vars/main.yml into Cisco ACI Sandbox using an Ansible playbook
-Ansible must be intalled on your workstation.
+### Contracts
 
 ```text
-ansible-playbook aci-deploy.yml
+py -3 ./aciconf.py -u admin -p ciscopsdt -i sandboxapicdc.cisco.com -c .\examples\contracts\testcontracts.yml -a ./aciapidesc.yml
 ```
 
-The playbook accepts "item" based configuration files only.
+### L4-L7 Service (GoTo, Redir)
+
+```text
+py -3 ./aciconf.py -u admin -p ciscopsdt -i sandboxapicdc.cisco.com -c .\examples\L4L7\GoToRedir.yml -a ./aciapidesc.yml
+```

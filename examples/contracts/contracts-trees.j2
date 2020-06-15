@@ -1,0 +1,79 @@
+url_names:
+  fvTenant: 
+    name: "{{tenant.name}}"
+
+aci_trees:
+{#>>>  Filters >>>#}
+{% for _filter in filters %}
+  - vzFilter:
+      attributes:
+        annotation: ''
+        descr: ''
+        name: {{_filter.name}}
+        nameAlias: ''
+        ownerKey: ''
+        ownerTag: ''
+      children:
+{% for _entry in _filter.entries %}
+        - vzEntry:
+            attributes:
+              annotation: ''
+              applyToFrag: 'no'
+              arpOpc: {{_entry.arpPoc|default('unspecified')}}
+              dFromPort: '{{_entry.dFromPort|default('unspecified')}}'
+              dToPort: '{{_entry.dToPort|default('unspecified')}}'
+              descr: ''
+              etherT: {{_entry.etherT|default('unspecified')}}
+              icmpv4T: {{_entry.icmpv4T|default('unspecified')}}
+              icmpv6T: {{_entry.icmpv6T|default('unspecified')}}
+              matchDscp: unspecified
+              name: {{_entry.name}}
+              nameAlias: ''
+              prot: {{_entry.prot|default('unspecified')}}
+              sFromPort: '{{_entry.sFromPort|default('unspecified')}}'
+              sToPort: '{{_entry.sToPort|default('unspecified')}}'
+              stateful: '{{_entry.stateful|default('no')}}'
+              tcpRules: ''
+{%  endfor %} {# _entry #}
+{% endfor %} {# _filter #}
+{#<<<  Filters <<<#}
+{#>>>  Contracts >>>#}
+{% for _contract in contracts %}
+  - vzBrCP:
+      attributes:
+        annotation: ''
+        descr: ''
+        intent: install
+        name: {{_contract.name}}
+        nameAlias: ''
+        ownerKey: ''
+        ownerTag: ''
+        prio: unspecified
+        scope: {{_contract.scope}}
+        targetDscp: unspecified
+      children:
+{%  for _subject in _contract.subjects %}
+        - vzSubj:
+            attributes:
+              annotation: ''
+              consMatchT: {{_subject.consMatchT}}
+              descr: ''
+              name: {{_subject.name}}
+              nameAlias: ''
+              prio: unspecified
+              provMatchT: {{_subject.consMatchT}}
+              revFltPorts: '{{_subject.revFltPorts}}'
+              targetDscp: unspecified
+            children:
+{%    for _filter in _subject.filters %}
+              - vzRsSubjFiltAtt:
+                  attributes:
+                      action: {{_filter.action}}
+                      annotation: ''
+                      directives: ''
+                      priorityOverride: default
+                      tnVzFilterName: {{_filter.name}}
+{%    endfor %} {# _subject.filters #}
+{%  endfor %} {# _contract.subjects #}
+{% endfor %} {# _contract #}
+{#<<<  Contracts <<<#}

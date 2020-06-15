@@ -1,0 +1,81 @@
+vars:
+  tenant:
+    name: "TN_PEHRUBY_TEST"
+  filters:
+    - name: PH-SSH_FLT
+      entries:
+        - name: SSH-STAT_ENT  # lists are imperative !
+          etherT: ipv4
+          prot: tcp
+          stateful: 'yes'
+          dFromPort: '22'
+          dToPort: '22'
+    - name: PH-IP_FLT
+      entries:
+        - name: IPALL_ENT
+          etherT: ipv4
+    - name: PH-ICMP_FLT
+      entries:
+        - name: ICMP_ENT
+          etherT: ipv4
+          prot: icmp
+  contracts:
+    - name: PH-SSH_CON
+      scope: tenant
+      subjects:
+        - name: PH-SSH_COS
+          consMatchT: AtleastOne
+          provMatchT: AtleastOne
+          revFltPorts: 'yes'
+          filters:
+            - name: PH-SSH_FLT
+              action: permit
+    - name: PH-IP_CON
+      scope: tenant
+      subjects:
+        - name: PH-IP_COS
+          consMatchT: AtleastOne
+          provMatchT: AtleastOne
+          revFltPorts: 'yes'
+          filters:
+            - name: PH-ICMP_FLT
+              action: permit
+    - name: PH-ICMP_CON
+      scope: tenant
+      subjects:
+        - name: PH-ICMP_COS
+          consMatchT: AtleastOne
+          provMatchT: AtleastOne
+          revFltPorts: 'yes'
+          filters:
+            - name: PH-ICMP_FLT
+              action: permit
+    - name: PHFW2_CON
+      scope: tenant
+      subjects:
+        - name: IPALL_COS
+          consMatchT: AtleastOne
+          provMatchT: AtleastOne
+          revFltPorts: 'yes'
+          filters:
+            - name: PH-IP_FLT
+              action: permit
+    - name: PHFW_CON
+      scope: tenant
+      subjects:
+        - name: DIRECT_COS
+          consMatchT: AtleastOne
+          provMatchT: AtleastOne
+          revFltPorts: 'yes'
+          filters:
+            - name: PH-ICMP_FLT
+              action: permit
+        - name: REDIRECT_COS
+          consMatchT: AtleastOne
+          provMatchT: AtleastOne
+          revFltPorts: 'yes'
+          filters:
+            - name: PH-SSH_FLT
+              action: permit
+aci_cfgfiles:
+  - contracts-items.j2

@@ -1,6 +1,6 @@
 vars:
   tenant:
-    name: "PH-SANDBOX_TEN"
+    name: "TN_PEHRUBY_TEST"
   serviceGraph:
     svcType: FW
     fncType: GoTo
@@ -47,12 +47,12 @@ vars:
           mac: E0:2F:6D:4A:29:B5
     contract:
       - name: PHFW_CON
-        subject: Subject
+        subject: REDIRECT_COS
       - name: PHFW2_CON
-        subject: test
+        subject: IPALL_COS
       
 
 aci_cfgfiles:
 # creates L4L7 Device, SGT, Device Selection Policy
   - L4L7svc-items.j2
-#  - PBRtoConSubj.j2
+  - PBRtoConSubj.j2
